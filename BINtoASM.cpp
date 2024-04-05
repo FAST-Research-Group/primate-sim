@@ -163,6 +163,7 @@ void Convert_Assembly(vector<string> input, vector<string> output){
     string rd; // bits 7-11
     string rs1; // bits 15-19
     string rs2; // bits 24-20
+    string funct7;
 
 
     string result; //this will be the final instruction
@@ -173,7 +174,9 @@ void Convert_Assembly(vector<string> input, vector<string> output){
         func3 = "\0";
         rd = "\0";
         rs1 = "\0";
+        rs2 = "\0";
         opcode = "\0";
+        funct7 = "\0";
 
         const string& current = input.at(i); //current binary instruction
 
@@ -186,7 +189,7 @@ void Convert_Assembly(vector<string> input, vector<string> output){
             }
 
         } //this takes the opcode unless there is a new line
-
+        //end here if newline
 
         if(opcode == "0010011" || opcode == "0000011" || opcode == "0001111" || opcode == "1110011"){ //type I instruction (immediate)
             // these for loops will generate the proper numbers for me to append to the result before storing it in the assembly
@@ -204,7 +207,7 @@ void Convert_Assembly(vector<string> input, vector<string> output){
             }
 
 
-            if(opcode == "0010011"){
+            if(opcode == "0010011"){ // I-Type instructions
                 if(func3 == "000"){
                     result = "ADDi,R";
                     result.append(bin_integer_unsigned(rd));
@@ -285,7 +288,7 @@ void Convert_Assembly(vector<string> input, vector<string> output){
                 }
             }
         }
-        else if(opcode == "0110111" || opcode == "0010111"){
+        else if(opcode == "0110111" || opcode == "0010111"){ // U-Type Instructions
             for(j = 0; j < 20;j++){
                 immediate += current[j];
             }
@@ -308,8 +311,100 @@ void Convert_Assembly(vector<string> input, vector<string> output){
                 result += ";";
             }
         }
-        else if(opcode == "0110011"){
-            type.emplace_back('R');
+        else if(opcode == "0110011"){ // R-Type Instructions
+            for(j = 17; j < 20; j ++){
+                func3 += current[j];
+            }
+            for(j = 7; j < 12; j++){
+                rs2 += current[j];
+            }
+            for(j=12;j<17;j++){
+                rs1 += current[j];
+            }
+
+            if(func3 == "000"){
+                if(current[1] == '1'){
+                    result += "SUB,R";
+                }
+                else{
+                    result += "ADD,R";
+                }
+                result.append(bin_integer_unsigned(rd));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs1));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs2));
+                result += ";";
+            }
+            else if(func3 == "010"){
+                result += "SLT,R";
+                result.append(bin_integer_unsigned(rd));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs1));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs2));
+                result += ";";
+            }
+            else if(func3 == "011"){
+                result += "SLTU,R";
+                result.append(bin_integer_unsigned(rd));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs1));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs2));
+                result += ";";
+            }
+            else if(func3 == "111"){
+                result += "AND,R";
+                result.append(bin_integer_unsigned(rd));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs1));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs2));
+                result += ";";
+            }
+            else if(func3 == "110"){
+                result += "OR,R";
+                result.append(bin_integer_unsigned(rd));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs1));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs2));
+                result += ";";
+            }
+            else if(func3 == "100"){
+                result += "XOR,R";
+                result.append(bin_integer_unsigned(rd));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs1));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs2));
+                result += ";";
+            }
+            else if(func3 == "001"){
+                result += "SLL,R";
+                result.append(bin_integer_unsigned(rd));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs1));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs2));
+                result += ";";
+            }
+            else{
+                if(current[1] == '1'){
+                    result += "SRA,R";
+                }
+                else{
+                    result += "SRL,R";
+                }
+                result.append(bin_integer_unsigned(rd));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs1));
+                result += ",";
+                result.append(bin_integer_unsigned(rs2));
+                result += ";";
+            }
+
         }
         else if(opcode == "1101111" || opcode == "1100111"){
             type.emplace_back('J');
@@ -352,6 +447,7 @@ void Convert_Assembly(vector<string> input, vector<string> output){
        }
        assembly.push_back(result);
        func3 = "\0";
+       i++;
     }
 
 }
