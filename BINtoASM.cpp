@@ -287,6 +287,58 @@ void Convert_Assembly(vector<string> input, vector<string> output){
                     result += ";";
                 }
             }
+            else if(opcode == "0000011"){
+                if(func3 == "010"){
+                    result += "LW,R";
+                }
+                else if(func3 == "001"){
+                    result += "LH,R";
+                }
+                else if(func3 == "101"){
+                    result += "LHU,R";
+                }
+                else{
+                    result += "LBU,R";
+                }
+                result.append(bin_integer_unsigned(rd));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs1));
+                result += ",";
+                result.append(bin_integer_signed(immediate));
+                result += ";";
+
+            }
+            else if(opcode == "0001111"){
+                if(func3 == "000"){
+                    result += "FENCE,R";
+                }
+                else{
+                    result += "FENCE.I,R";
+                }
+                result.append(bin_integer_unsigned(rd));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs1));
+                result += ",";
+                result.append(bin_integer_signed(immediate));
+                result += ";";
+            }
+            else{
+                if(func3 == "000"){
+                    if(immediate[11] == '0'){
+                        result += "ECALL,R";
+                    }
+                    else{
+                        result += "EBREAK,R";
+                    }
+                }
+                else if(func3 == "")
+            }
+            result.append(bin_integer_unsigned(rd));
+            result += ",R";
+            result.append(bin_integer_unsigned(rs1));
+            result += ",";
+            result.append(bin_integer_signed(immediate));
+            result += ";";
         }
         else if(opcode == "0110111" || opcode == "0010111"){ // U-Type Instructions
             for(j = 0; j < 20;j++){
@@ -326,8 +378,11 @@ void Convert_Assembly(vector<string> input, vector<string> output){
                 if(current[1] == '1'){
                     result += "SUB,R";
                 }
-                else{
+                else if(current[1] == '0'){
                     result += "ADD,R";
+                }
+                else{
+                    result += "MUL,R";
                 }
                 result.append(bin_integer_unsigned(rd));
                 result += ",R";
@@ -337,7 +392,12 @@ void Convert_Assembly(vector<string> input, vector<string> output){
                 result += ";";
             }
             else if(func3 == "010"){
-                result += "SLT,R";
+                if(current[7] == '0'){
+                    result += "SLT,R";
+                }
+                else{
+                    result += "MULHSU,R";
+                }
                 result.append(bin_integer_unsigned(rd));
                 result += ",R";
                 result.append(bin_integer_unsigned(rs1));
@@ -346,7 +406,12 @@ void Convert_Assembly(vector<string> input, vector<string> output){
                 result += ";";
             }
             else if(func3 == "011"){
-                result += "SLTU,R";
+                if(current[7] == '0'){
+                    result += "SLTU,R";
+                }
+                else{
+                    result += "MULHU,R";
+                }
                 result.append(bin_integer_unsigned(rd));
                 result += ",R";
                 result.append(bin_integer_unsigned(rs1));
@@ -355,7 +420,12 @@ void Convert_Assembly(vector<string> input, vector<string> output){
                 result += ";";
             }
             else if(func3 == "111"){
-                result += "AND,R";
+                if(current[7] == '1'){
+                    result += "REMU,R";
+                }
+                else{
+                    result += "AND,R";
+                }
                 result.append(bin_integer_unsigned(rd));
                 result += ",R";
                 result.append(bin_integer_unsigned(rs1));
@@ -364,7 +434,12 @@ void Convert_Assembly(vector<string> input, vector<string> output){
                 result += ";";
             }
             else if(func3 == "110"){
-                result += "OR,R";
+                if(current[7] == '1'){
+                    result += "REM,R";
+                }
+                else{
+                    result += "OR,R";
+                }
                 result.append(bin_integer_unsigned(rd));
                 result += ",R";
                 result.append(bin_integer_unsigned(rs1));
@@ -373,7 +448,12 @@ void Convert_Assembly(vector<string> input, vector<string> output){
                 result += ";";
             }
             else if(func3 == "100"){
-                result += "XOR,R";
+                if(current[i] == '1'){
+                    result += "DIV,R";
+                }
+                else{
+                    result += "XOR,R";
+                }
                 result.append(bin_integer_unsigned(rd));
                 result += ",R";
                 result.append(bin_integer_unsigned(rs1));
@@ -382,7 +462,12 @@ void Convert_Assembly(vector<string> input, vector<string> output){
                 result += ";";
             }
             else if(func3 == "001"){
-                result += "SLL,R";
+                if(current[7] == '1'){
+                    result += "MULH,R";
+                }
+                else{
+                    result += "SLL,R";
+                }
                 result.append(bin_integer_unsigned(rd));
                 result += ",R";
                 result.append(bin_integer_unsigned(rs1));
@@ -391,6 +476,9 @@ void Convert_Assembly(vector<string> input, vector<string> output){
                 result += ";";
             }
             else{
+                if(current[7] == '1'){
+                    result += "DIVU,R";
+                }
                 if(current[1] == '1'){
                     result += "SRA,R";
                 }
@@ -446,7 +534,7 @@ void Convert_Assembly(vector<string> input, vector<string> output){
             return;
        }
        assembly.push_back(result);
-       func3 = "\0";
+
        i++;
     }
 
@@ -467,7 +555,12 @@ void write(const string& input_file){
 // ADDi,R0,X4,511
 //   0001 1111 1111 00100 000 00000 0010011
 int main() {
-
+    string hello = "hello";
+    hello += " world";
+    cout<<hello<<endl;
+    if(hello == "hello world"){
+        cout<<"true"<<endl;
+    }
     ofstream outputFile("Assembly.txt"); // in order to write to Assembly.txt use outputFile<<"message"<<endl;
     std::cout << "Hello, World!" << std::endl;
     return 0;
