@@ -19,7 +19,7 @@ vector<string> assembly;
  * SHOULD WORK
  */
 
-void read(const string& filename, vector<string> destination){
+void read(const string& filename){
     ifstream inputFile(filename);
     string line;
 
@@ -35,9 +35,9 @@ void read(const string& filename, vector<string> destination){
         string word;
 
         while(iss>>word){
-            destination.push_back(word);
+            hexadecimal.push_back(word);
         }
-        destination.emplace_back("\n");
+        hexadecimal.emplace_back("\n");
     }
 }
 
@@ -53,16 +53,17 @@ void read(const string& filename, vector<string> destination){
  * SHOULD WORK
  * ******** BIG SWITCH STATEMENT*********
  */
-void Convert_Binary(vector<string> input){
+void Convert_Binary(){
     int i = 0;
     int j = 0;
     string result;
     // return this. Should be in binary with new lines for each instruction
 
-    while(i < input.size()){
-        string hex_num = input.at(i);
+    while(i < hexadecimal.size()){
+        j=0;
+        string hex_num = hexadecimal.at(i);
         while(hex_num[j] != '\0'){
-            switch(hex_num[i]){
+            switch(hex_num[j]){
                 case '0':
                     result.append("0000");
                     break;
@@ -120,9 +121,11 @@ void Convert_Binary(vector<string> input){
                     result.append("\n");
                     break;
             }
+            j++;
         }
         binary.push_back(result);
-        result = '\0';
+        result = "";
+        i++;
     }
 }
 
@@ -153,7 +156,7 @@ string bin_integer_unsigned(const string& binary_string){
  * *******NOTE FOR LATER********
  * The assembly vector might not be needed as it can be initialized in the function and returned
  */
-void Convert_Assembly(vector<string> input, vector<string> output){
+void Convert_Assembly(){
     //the first type will correspond with the first binary input; needed to simplify my conversion to
     //assembly
     vector<char> type; //R,I,S,B,U,J,C,N ***** C for custom ******* N for New Line **********
@@ -169,7 +172,7 @@ void Convert_Assembly(vector<string> input, vector<string> output){
     string result; //this will be the final instruction
     int i = 0;
     int j;
-    while(i < input.size()){
+    while(i < binary.size()){
         result = "\0";
         func3 = "\0";
         rd = "\0";
@@ -177,9 +180,14 @@ void Convert_Assembly(vector<string> input, vector<string> output){
         rs2 = "\0";
         opcode = "\0";
         funct7 = "\0";
+        immediate = "";
 
-        const string& current = input.at(i); //current binary instruction
-
+        string& current = binary.at(i); //current binary instruction
+        if(current.length() < 10){
+            assembly.emplace_back("\n");
+            i++;
+            continue;
+        }
         for(j = 25; j < 32; j++){
             if(j < current.length()){
                 opcode += current[j];
@@ -189,6 +197,7 @@ void Convert_Assembly(vector<string> input, vector<string> output){
             }
 
         } //this takes the opcode unless there is a new line
+
         //end here if newline
 
         if(opcode == "0010011" || opcode == "0000011" || opcode == "0001111" || opcode == "1110011"){ //type I instruction (immediate)
@@ -331,14 +340,14 @@ void Convert_Assembly(vector<string> input, vector<string> output){
                         result += "EBREAK,R";
                     }
                 }
-                else if(func3 == "")
+                result.append(bin_integer_unsigned(rd));
+                result += ",R";
+                result.append(bin_integer_unsigned(rs1));
+                result += ",";
+                result.append(bin_integer_signed(immediate));
+                result += ";";
             }
-            result.append(bin_integer_unsigned(rd));
-            result += ",R";
-            result.append(bin_integer_unsigned(rs1));
-            result += ",";
-            result.append(bin_integer_signed(immediate));
-            result += ";";
+
         }
         else if(opcode == "0110111" || opcode == "0010111"){ // U-Type Instructions
             for(j = 0; j < 20;j++){
@@ -510,13 +519,14 @@ void Convert_Assembly(vector<string> input, vector<string> output){
             type.emplace_back('N');
         }
         assembly.push_back(result);
+        i++;
 
     }
 
 
     for(i = 0; i<type.size();i++){
-        const string& bin = input.at(i);
-        const string& current = input.at(i);
+        const string& bin = binary.at(i);
+        const string& current = binary.at(i);
         for(int l = 25; l < 32; l++){
             if(l < current.length()){
                 opcode += current[l];
@@ -535,9 +545,9 @@ void Convert_Assembly(vector<string> input, vector<string> output){
        }
        assembly.push_back(result);
 
-       i++;
-    }
 
+    }
+    i++;
 }
 
 /*
@@ -555,13 +565,18 @@ void write(const string& input_file){
 // ADDi,R0,X4,511
 //   0001 1111 1111 00100 000 00000 0010011
 int main() {
-    string hello = "hello";
-    hello += " world";
-    cout<<hello<<endl;
-    if(hello == "hello world"){
-        cout<<"true"<<endl;
-    }
-    ofstream outputFile("Assembly.txt"); // in order to write to Assembly.txt use outputFile<<"message"<<endl;
+    read("test.txt");
+    Convert_Binary();
+    Convert_Assembly();
+    write("Assembly.txt");
+//    string hello = "hello";
+//    hello += " world";
+//    cout<<hello<<endl;
+//    if(hello == "hello world"){
+//        cout<<"true"<<endl;
+//    }
+//    ofstream outputFile("Assembly.txt"); // in order to write to Assembly.txt use outputFile<<"message"<<endl;
+
     std::cout << "Hello, World!" << std::endl;
     return 0;
 }
