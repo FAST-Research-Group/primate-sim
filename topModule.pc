@@ -1,0 +1,23 @@
+int main(int argc, char** argv) {
+
+    // error if not enough arguments
+    // error if too many arguments
+
+    // read in the file
+
+    // parse the file
+
+    // create initial machine state (Machine state new class)
+
+    // create Backend instance (vector<FunctionalUnit>)
+
+    // loop program until finished
+    while(!halted) {
+        // fetch
+        // decode
+        // execute
+        // writeback
+    }
+
+    // print final machine state (eventually)
+}
