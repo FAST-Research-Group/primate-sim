@@ -8,7 +8,7 @@
 #include <string>
 #include "Instruction.h"
 using namespace std;
-
+// 20, 12, 31, 11 masks
 class Instruction
 {
 private:
@@ -77,6 +77,10 @@ public:
             this->rd = (raw_instruction >> 7) & ((1 << 5) - 1);
             this->rs1 = (raw_instruction >> 15) & ((1 << 5) - 1);
             this->immediate = (((raw_instruction >> 20) & ((1 << 13) - 1)));
+            if ((this->immediate & (1 << 11)) == (1 << 11))
+            {
+                this->immediate |= 0xFFFFF000;
+            }
             break;
         case U:
             this->rd = (raw_instruction >> 7) & ((1 << 5) - 1);
@@ -94,6 +98,10 @@ public:
             this->funct3 = (raw_instruction >> 12) & ((1 << 3) - 1);
             this->rs1 = (raw_instruction >> 15) & ((1 << 5) - 1);
             this->rs2 = (raw_instruction >> 20) & ((1 << 5) - 1);
+            if ((this->immediate & (1 << 11)) == (1 << 11))
+            {
+                this->immediate |= 0xFFFFF000;
+            }
             break;
         case B:
             this->immediate = 0;
@@ -101,6 +109,10 @@ public:
             this->immediate += (((raw_instruction >> 25) & ((1 << 7) - 1)) << 5);
             this->immediate += ((raw_instruction & (1 << 7)) << 4);
             this->immediate += (((raw_instruction >> 8) & ((1 << 4) - 1)) << 1);
+            if ((this->immediate & (1 << 12)) == (1 << 12))
+            {
+                this->immediate |= 0xFFFFE000;
+            }
 
             this->funct3 = (raw_instruction >> 12) & ((1 << 3) - 1);
             this->rs1 = (raw_instruction >> 15) & ((1 << 5) - 1);
@@ -111,11 +123,19 @@ public:
                                ((((raw_instruction >> 21) & ((1 << 10) - 1))) << 1) +
                                (((raw_instruction >> 20) & 1) << 11) +
                                ((((raw_instruction >> 12) & (1 << 8) - 1)) << 12);
+            if ((this->immediate & (1 << 20)) == (1 << 20))
+            {
+                this->immediate |= 0xFFE00000;
+            }
             this->rd = ((raw_instruction >> 7) & ((1 << 5) - 1));
             break;
         case C:
             this->immediate = 0;
             this->immediate += ((raw_instruction >> 20) & ((1 << 12) - 1));
+            if ((this->immediate & (1 << 11)) == (1 << 11))
+            {
+                this->immediate |= 0xFFFFF000;
+            }
             this->rs1 = (raw_instruction >> 15) & ((1 << 5) - 1);
             this->funct3 = (raw_instruction >> 12) & ((1 << 3) - 1);
             this->rd = (raw_instruction >> 7) & ((1 << 5) - 1);
