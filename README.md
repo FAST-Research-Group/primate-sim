@@ -1,5 +1,9 @@
 # PrimateSIM
 
+# REQUIREMENTS:
+
+- boost
+
 git status (print changed files)
 git add filepaths
 git commit -m "USEFUL message"
