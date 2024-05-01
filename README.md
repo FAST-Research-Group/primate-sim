@@ -1,6 +1,6 @@
 # PrimateSIM
 
-# REQUIREMENTS:
+# REQUIREMENTS
 
 - boost
 
