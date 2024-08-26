@@ -1,4 +1,4 @@
-#include <stdint.h>
+
 
 class branch {
  private:
@@ -126,36 +126,4 @@ int32_t alu::srl(int32_t a, int32_t b) { return a >> b; }
 int32_t alu::sra(int32_t a, int32_t b) {
   int32_t mask = 1 << 31;
   return (a >> b) | (mask >> b);
-}
-
-int main() {
-  alu alu;
-  int32_t a = 10;
-  int32_t b = 20;
-  int32_t imm = 5;
-  int32_t shift = 2;
-  int32_t result;
-
-  result = alu.add(a, b);
-  result = alu.addi(a, imm);
-  result = alu.sub(a, b);
-  result = alu.lui(imm);
-  result = alu.slti(a, imm);
-  result = alu.sltiu(a, imm);
-  result = alu.andi(a, imm);
-  result = alu.ori(a, imm);
-  result = alu.xori(a, imm);
-  result = alu.snez(a);
-  result = alu.and_op(a, b);
-  result = alu.or_op(a, b);
-  result = alu.xor_op(a, b);
-  result = alu.not_op(a);
-  result = alu.slli(a, shift);
-  result = alu.srli(a, shift);
-  result = alu.srai(a, shift);
-  result = alu.sll(a, b);
-  result = alu.srl(a, b);
-  result = alu.sra(a, b);
-
-  return 0;
 }
