@@ -106,8 +106,8 @@ vector<vector<Instruction>> read(const string &filename)
 
         while (iss >> word)
         {
-            uint32_t unum = (uint32_t)(stoul(word, nullptr, 16));
-            int num = static_cast<int>(unum);
+
+            int num = stringToBinary(word);
             Instruction CurInstruct(num);
             CurPacket.push_back(CurInstruct);
         }
