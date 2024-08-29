@@ -11,6 +11,74 @@ using namespace std;
 
 int total_instructions = 14;
 
+// stringToBinary function is used since issues with stoi staying in 32 bits
+int stringToBinary(string test)
+{
+    int result = 0;
+    for (int i = 0; i < 8; i++)
+    {
+        result = result << 4;
+        switch (test[i])
+        {
+
+        case '0':
+            result += 0b0000;
+            break;
+        case '1':
+            result += 0b0001;
+            break;
+        case '2':
+            result += 0b0010;
+            break;
+        case '3':
+            result += 0b0011;
+            break;
+        case '4':
+            result += 0b0100;
+            break;
+        case '5':
+            result += 0b0101;
+            break;
+        case '6':
+            result += 0b0110;
+            break;
+        case '7':
+            result += 0b0111;
+            break;
+        case '8':
+            result += 0b1000;
+            break;
+        case '9':
+            result += 0b1001;
+            break;
+        case 'a':
+        case 'A':
+            result += 0b1010;
+            break;
+        case 'b':
+        case 'B':
+            result += 0b1011;
+            break;
+        case 'c':
+        case 'C':
+            result += 0b1100;
+            break;
+        case 'd':
+        case 'D':
+            result += 0b1101;
+            break;
+        case 'e':
+        case 'E':
+            result += 0b1110;
+            break;
+        default:
+            result += 0b1111;
+            break;
+        }
+    }
+    return result;
+}
+
 vector<vector<Instruction>> read(const string &filename)
 {
     vector<vector<Instruction>> VLIW;
@@ -100,7 +168,7 @@ int main(int argc, char *argv[])
 
         // execute - function proc(instruction) will be run, method written by someone else, can be modified to run each instruction of a vector or one VLIW
         !!!!!!! Throw a warning if the destination registers of a VLIW are the same to help debug the compiler LLVM stuff in the future
-        !!!!!!! An error might occur from consts.hpp
+        !!!!!!! An error might occur from consts.hpp : The # of instructions comes from compiler but it's hard coded in .hpp
 
         // writeback - TBD who updates the machine state
     }
@@ -119,7 +187,7 @@ int main(int argc, char *argv[])
     string filePath = argv[1];
     vector<vector<Instruction>> instructions = read(filePath); // reading an parsing done here
 
-    MachineState test = MachineState(0); // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
+    MachineState test(0); // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
 
     // Throw warnings if same destination
     for (int i = 0; i < instructions.size(); i++)
@@ -136,10 +204,7 @@ int main(int argc, char *argv[])
 
     while (test.running)
     {
-        for (int i = 0; i < INSTRS_PER_PACKET; i++)
-        {
-            proc_instruction(instructions.at(i));
-        }
+        proc_instruction(instructions, test);
     }
 
     /*
