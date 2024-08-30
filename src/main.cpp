@@ -144,7 +144,7 @@ void get_data(Instruction dat)
 
 int main(int argc, char *argv[])
 {
-    /*Pseudo code to be implemented as suggested by Kayvan and interpreted by me
+    /*Pseudo code to be implemented as suggested by Kayvan
     // error if not enough arguments
     // error if too many arguments
 
