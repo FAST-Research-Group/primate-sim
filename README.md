@@ -3,12 +3,13 @@
 # REQUIREMENTS
 
 - boost
+- CMake
 
-git status (print changed files)
-git add filepaths
-git commit -m "USEFUL message"
-git push            
+# BUILDING
 
---PUTS CODE OUT TO GITHUB--
+Project uses cmake
 
-git pull (brings everything in from github)
+- `mkdir build`
+- `cd build`
+- `cmake ../`
+- executable should now be in `build/src`

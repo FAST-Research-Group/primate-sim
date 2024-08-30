@@ -27,9 +27,6 @@ private:
     string assembly;
     type inst;
 
-public:
-    Instruction() = default;
-
     Instruction(int raw_instruction)
     {
         this->raw_instruction = raw_instruction;
