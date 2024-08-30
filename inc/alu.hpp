@@ -1,12 +1,12 @@
+#include "FunctionalUnit.hpp"
 
-
-class branch {
+class BranchUnit : public FunctionalUnit {
  private:
   int32_t pc;
 
  public:
-  branch();
-  ~branch();
+  BranchUnit();
+  ~BranchUnit();
   int32_t j(int32_t imm);
   int32_t jr(int32_t imm);
   int32_t beq(int32_t a, int32_t b);
@@ -18,29 +18,29 @@ class branch {
   int32_t end();
 };
 
-branch::branch() { pc = 0; }
+BranchUnit::BranchUnit() { pc = 0; }
 
-branch::~branch() {}
+BranchUnit::~BranchUnit() {}
 
-int32_t branch::j(int32_t imm) { return pc + imm; }
+int32_t BranchUnit::j(int32_t imm) { return pc + imm; }
 
-int32_t branch::jr(int32_t imm) { return imm; }
+int32_t BranchUnit::jr(int32_t imm) { return imm; }
 
-int32_t branch::beq(int32_t a, int32_t b) { return a == b ? 1 : 0; }
+int32_t BranchUnit::beq(int32_t a, int32_t b) { return a == b ? 1 : 0; }
 
-int32_t branch::bne(int32_t a, int32_t b) { return a != b ? 1 : 0; }
+int32_t BranchUnit::bne(int32_t a, int32_t b) { return a != b ? 1 : 0; }
 
-int32_t branch::blt(int32_t a, int32_t b) { return a < b ? 1 : 0; }
+int32_t BranchUnit::blt(int32_t a, int32_t b) { return a < b ? 1 : 0; }
 
-int32_t branch::bge(int32_t a, int32_t b) { return a >= b ? 1 : 0; }
+int32_t BranchUnit::bge(int32_t a, int32_t b) { return a >= b ? 1 : 0; }
 
-int32_t branch::bltu(int32_t a, uint32_t b) { return a < b ? 1 : 0; }
+int32_t BranchUnit::bltu(int32_t a, uint32_t b) { return a < b ? 1 : 0; }
 
-int32_t branch::bgeu(int32_t a, uint32_t b) { return a >= b ? 1 : 0; }
+int32_t BranchUnit::bgeu(int32_t a, uint32_t b) { return a >= b ? 1 : 0; }
 
-int32_t branch::end() { return 0; }
+int32_t BranchUnit::end() { return 0; }
 
-class alu {
+class ALU : public FunctionalUnit {
  private:
   int32_t sign_extend(int32_t imm, int32_t size) {
     int32_t mask = 1 << (size - 1);
@@ -49,8 +49,8 @@ class alu {
   int32_t pc;
 
  public:
-  alu();
-  ~alu();
+  ALU();
+  ~ALU();
   // Arithmetic operations
   int32_t add(int32_t a, int32_t b);
   int32_t addi(int32_t a, int32_t imm);
@@ -78,52 +78,52 @@ class alu {
   int32_t sra(int32_t a, int32_t b);
 };
 
-alu::alu() { pc = 0; }
+ALU::ALU() { pc = 0; }
 
-alu::~alu() {}
+ALU::~ALU() {}
 
-int32_t alu::add(int32_t a, int32_t b) { return a + b; }
+int32_t ALU::add(int32_t a, int32_t b) { return a + b; }
 
-int32_t alu::addi(int32_t a, int32_t imm) { return a + imm; }
+int32_t ALU::addi(int32_t a, int32_t imm) { return a + imm; }
 
-int32_t alu::sub(int32_t a, int32_t b) { return a - b; }
+int32_t ALU::sub(int32_t a, int32_t b) { return a - b; }
 
-int32_t alu::lui(int32_t imm) { return imm << 12; }
+int32_t ALU::lui(int32_t imm) { return imm << 12; }
 
-int32_t alu::slti(int32_t a, int32_t imm) { return a < imm ? 1 : 0; }
+int32_t ALU::slti(int32_t a, int32_t imm) { return a < imm ? 1 : 0; }
 
-int32_t alu::sltiu(int32_t a, uint32_t imm) { return a < imm ? 1 : 0; }
+int32_t ALU::sltiu(int32_t a, uint32_t imm) { return a < imm ? 1 : 0; }
 
-int32_t alu::andi(int32_t a, int32_t imm) { return a & imm; }
+int32_t ALU::andi(int32_t a, int32_t imm) { return a & imm; }
 
-int32_t alu::ori(int32_t a, int32_t imm) { return a | imm; }
+int32_t ALU::ori(int32_t a, int32_t imm) { return a | imm; }
 
-int32_t alu::xori(int32_t a, int32_t imm) { return a ^ imm; }
+int32_t ALU::xori(int32_t a, int32_t imm) { return a ^ imm; }
 
-int32_t alu::snez(int32_t a) { return a != 0 ? 1 : 0; }
+int32_t ALU::snez(int32_t a) { return a != 0 ? 1 : 0; }
 
-int32_t alu::and_op(int32_t a, int32_t b) { return a & b; }
+int32_t ALU::and_op(int32_t a, int32_t b) { return a & b; }
 
-int32_t alu::or_op(int32_t a, int32_t b) { return a | b; }
+int32_t ALU::or_op(int32_t a, int32_t b) { return a | b; }
 
-int32_t alu::xor_op(int32_t a, int32_t b) { return a ^ b; }
+int32_t ALU::xor_op(int32_t a, int32_t b) { return a ^ b; }
 
-int32_t alu::not_op(int32_t a) { return ~a; }
+int32_t ALU::not_op(int32_t a) { return ~a; }
 
-int32_t alu::slli(int32_t a, int32_t shift) { return a << shift; }
+int32_t ALU::slli(int32_t a, int32_t shift) { return a << shift; }
 
-int32_t alu::srli(int32_t a, int32_t shift) { return a >> shift; }
+int32_t ALU::srli(int32_t a, int32_t shift) { return a >> shift; }
 
-int32_t alu::srai(int32_t a, int32_t shift) {
+int32_t ALU::srai(int32_t a, int32_t shift) {
   int32_t mask = 1 << 31;
   return (a >> shift) | (mask >> shift);
 }
 
-int32_t alu::sll(int32_t a, int32_t b) { return a << b; }
+int32_t ALU::sll(int32_t a, int32_t b) { return a << b; }
 
-int32_t alu::srl(int32_t a, int32_t b) { return a >> b; }
+int32_t ALU::srl(int32_t a, int32_t b) { return a >> b; }
 
-int32_t alu::sra(int32_t a, int32_t b) {
+int32_t ALU::sra(int32_t a, int32_t b) {
   int32_t mask = 1 << 31;
   return (a >> b) | (mask >> b);
 }
