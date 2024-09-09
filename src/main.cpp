@@ -144,37 +144,6 @@ void get_data(Instruction dat)
 
 int main(int argc, char *argv[])
 {
-    /*Pseudo code to be implemented as suggested by Kayvan
-    // error if not enough arguments
-    // error if too many arguments
-
-    // read in the file
-
-    // parse the file
-
-    // create initial machine state (Machine state new class)
-
-    // create Backend instance (vector<FunctionalUnit>)
-
-    // loop program until finished
-    while(!halted) {
-
-
-        // fetch - already done by parsing the file
-
-
-        // decode - part of the execute since instruction will go to functional unit
-
-
-        // execute - function proc(instruction) will be run, method written by someone else, can be modified to run each instruction of a vector or one VLIW
-        !!!!!!! Throw a warning if the destination registers of a VLIW are the same to help debug the compiler LLVM stuff in the future
-        !!!!!!! An error might occur from consts.hpp : The # of instructions comes from compiler but it's hard coded in .hpp
-
-        // writeback - TBD who updates the machine state
-    }
-
-    // print final machine state (eventually)
-    */
 
     if (argc != 2) // error if wrong amount of arguments arguments
     {
@@ -185,54 +154,35 @@ int main(int argc, char *argv[])
     // current bug with stoi that doesn't work with the TCP file
 
     string filePath = argv[1];
-    vector<vector<Instruction>> instructions = read(filePath); // reading an parsing done here
 
-    MachineState test(0); // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
+    // reading an parsing done here (bug will appear since "consts.hpp" has different dimensions for VLIW than my hardcoded main)
+    vector<vector<Instruction>> instructions = read(filePath);
+
+    MachineState Machine0(0); // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
+
+    // Initialize Functional Units over here
 
     // Throw warnings if same destination
-    for (int i = 0; i < instructions.size(); i++)
+    // If statement necessary in order to make sure that I don't get an out of range exception from the nested for loops
+    if (instrcution.size() >= 2)
     {
-        for (int j = 0; i < instructions.at(i).size() - 1; j++)
+        for (auto i : instructions)
         {
-            for (int k = 1; k < instructions.at(i).size(); k++)
-                if (instructions.at(i).at(j).get_rd() == instructions.at(i).at(k).get_rd())
-                {
-                    cout << j << " and " << k << " have the same destination register in Instruction " << i << endl;
-                }
+            for (int j = 0; i < instructions.at(i).size() - 1; j++)
+            {
+                for (int k = j + 1; k < instructions.at(i).size(); k++)
+                    if (instructions.at(i).at(j).get_rd() == instructions.at(i).at(k).get_rd())
+                    {
+                        cout << j << " and " << k << " have the same destination register in Instruction " << i << endl;
+                    }
+            }
         }
     }
 
-    while (test.running)
+    while (Machine0.running)
     {
-        proc_instruction(instructions, test);
+        proc_instruction(instructions, Machine0);
     }
-
-    /*
-    // starting here 1.0, this creates an output file that I needed in order to test that I was parsing the instructions properly
-
-    ofstream outfile("text.txt");
-    if (!outfile.is_open())
-    {
-        cerr << "Error: Could not open the file 'text.txt' for writing." << endl;
-        return 1;
-    }
-
-    int i = 0;
-    while (i < instructions.size())
-    {
-        int j = 0; // Reset j for each new outer loop iteration
-        while (j < instructions.at(i).size())
-        {
-            outfile << instructions.at(i).at(j).get_instruction() << " ";
-            j++;
-        }
-        outfile << endl;
-        i++;
-    }
-
-    outfile.close();
-    // ending here 1.0
-    */
 
     cout << "Hello, World!" << endl;
     return 0;

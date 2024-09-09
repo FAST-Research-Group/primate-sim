@@ -15,4 +15,10 @@ public:
   bool running;
 
   MachineState(uint64_t starting_addr);
+
+  int updateState(int &state)
+  {
+    state = state + 1;
+    return state;
+  }
 };
