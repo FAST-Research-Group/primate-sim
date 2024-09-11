@@ -3,14 +3,40 @@
 #include <vector>
 #include <sstream>
 #include <string>
-#include "Instruction.cpp"
 #include <cstdint>
 #include "MachineState.cpp"
-
+#include "Instruction.cpp"
+#include "FunctionalUnit.hpp"
 using namespace std;
 
 int total_instructions = 14;
+int num_BFU = 0;
+int num_merged = 0;
 
+void readNumUnits(string filename)
+{
+    ifstream inputFile(filename);
+    string line;
+
+    if (!inputFile.is_open())
+    {
+        cerr << "Error opening file" << endl;
+        return;
+    }
+    while (getline(inputFile, line))
+    {
+        istringstream iss(line);
+        string word;
+        while (iss >> word)
+        {
+            string word1 = word.substr(0, 9);
+            if (word1.compare("NUM_ALUS=") == 0)
+            {
+                continue;
+            }
+        }
+    }
+}
 // stringToBinary function is used since issues with stoi staying in 32 bits
 int stringToBinary(string test)
 {
@@ -145,7 +171,7 @@ void get_data(Instruction dat)
 int main(int argc, char *argv[])
 {
 
-    if (argc != 2) // error if wrong amount of arguments arguments
+    if (argc != 3) // error if wrong amount of arguments arguments
     {
         cerr << "Usage: " << argv[0] << " <file_path>" << endl;
         return 1;
@@ -153,20 +179,23 @@ int main(int argc, char *argv[])
 
     // current bug with stoi that doesn't work with the TCP file
 
-    string filePath = argv[1];
+    string filePath_instruction = argv[1];
+    string filePath_config = argv[2];
 
     // reading an parsing done here (bug will appear since "consts.hpp" has different dimensions for VLIW than my hardcoded main)
-    vector<vector<Instruction>> instructions = read(filePath);
+    vector<vector<Instruction>> instructions = read(filePath_instruction);
+
+    vector<shared_ptr<FunctionalUnit>> allUnits; // IDK why this works, but stack overflow says it does
 
     MachineState Machine0(0); // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
 
     // Initialize Functional Units over here
 
     // Throw warnings if same destination
-    // If statement necessary in order to make sure that I don't get an out of range exception from the nested for loops
-    if (instrcution.size() >= 2)
+    // If statement necessary in order to make sure that I don't get an out of range exception from the nested for loopss
+    if (instructions.size() >= 2)
     {
-        for (auto i : instructions)
+        for (int i = 0; i < instructions.size(); i++)
         {
             for (int j = 0; i < instructions.at(i).size() - 1; j++)
             {
@@ -181,7 +210,8 @@ int main(int argc, char *argv[])
 
     while (Machine0.running)
     {
-        proc_instruction(instructions, Machine0);
+
+        processInstruction(instructions, Machine0);
     }
 
     cout << "Hello, World!" << endl;
