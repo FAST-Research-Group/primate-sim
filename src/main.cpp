@@ -7,11 +7,13 @@
 #include "MachineState.cpp"
 #include "Instruction.cpp"
 #include "FunctionalUnit.hpp"
+#include <alu.hpp>
 using namespace std;
 
-int total_instructions = 14;
+int instruction_width = 0;
 int num_BFU = 0;
 int num_merged = 0;
+int num_branch = 1;
 
 void readNumUnits(string filename)
 {
@@ -32,10 +34,15 @@ void readNumUnits(string filename)
             string word1 = word.substr(0, 9);
             if (word1.compare("NUM_ALUS=") == 0)
             {
-                continue;
+                num_merged = stoi(word.substr(10), 0, 10);
+            }
+            if (word1.compare("NUM_BFUS=") == 0)
+            {
+                num_BFU = stoi(word.substr(10), 0, 10) - 1; // -1 for the branch. I don't know what to do about the branch unit yet
             }
         }
     }
+    instruction_width = num_merged + num_BFU + num_branch;
 }
 // stringToBinary function is used since issues with stoi staying in 32 bits
 int stringToBinary(string test)
@@ -121,7 +128,7 @@ vector<vector<Instruction>> read(const string &filename)
 
     while (getline(inputFile, line))
     {
-        if (CurPacket.size() >= total_instructions)
+        if (CurPacket.size() >= instruction_width)
         {
             VLIW.push_back(CurPacket);
             CurPacket.clear();
@@ -142,7 +149,7 @@ vector<vector<Instruction>> read(const string &filename)
     if (!CurPacket.empty())
     {
         // Only push CurPacket if it contains exactly total_instructions instructions
-        if (CurPacket.size() == total_instructions)
+        if (CurPacket.size() == instruction_width)
         {
             VLIW.push_back(CurPacket);
         }
@@ -182,14 +189,28 @@ int main(int argc, char *argv[])
     string filePath_instruction = argv[1];
     string filePath_config = argv[2];
 
+    vector<shared_ptr<FunctionalUnit>> allUnits; // IDK why this works, but stack overflow says it does
+    // This has to happen first because the instruction width is calculated in this function
+    while (num_branch != 0)
+    {
+        allUnits.push_back(make_shared<BranchUnit>());
+        num_branch--;
+    }
+    while (num_BFU != 0)
+    {
+        allUnits.push_back(make_shared<BFU>());
+        num_BFU--;
+    }
+    while (num_merged != 0)
+    {
+        allUnits.push_back(make_shared<ALU>()); // This needs to change in order to accomodate between green and blue functional unit once wrapper class is written
+        num_merged--;
+    }
+
     // reading an parsing done here (bug will appear since "consts.hpp" has different dimensions for VLIW than my hardcoded main)
     vector<vector<Instruction>> instructions = read(filePath_instruction);
 
-    vector<shared_ptr<FunctionalUnit>> allUnits; // IDK why this works, but stack overflow says it does
-
-    MachineState Machine0(0); // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
-
-    // Initialize Functional Units over here
+    MachineState Machine0(0); // initial machine state (the initial PC might be a bug)
 
     // Throw warnings if same destination
     // If statement necessary in order to make sure that I don't get an out of range exception from the nested for loopss
@@ -210,8 +231,10 @@ int main(int argc, char *argv[])
 
     while (Machine0.running)
     {
-
-        processInstruction(instructions, Machine0);
+        for (const auto &unit : allUnits)
+        {
+            unit->processInstruction(instructions.at(Machine0.pc), Machine0);
+        }
     }
 
     cout << "Hello, World!" << endl;
