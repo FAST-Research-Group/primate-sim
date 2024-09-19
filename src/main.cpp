@@ -1,25 +1,22 @@
-#include <iostream>
+#include "Instruction.cpp"
+#include "MachineState.cpp"
+#include <cstdint>
 #include <fstream>
-#include <vector>
+#include <iostream>
 #include <sstream>
 #include <string>
-#include "Instruction.cpp"
-#include <cstdint>
-#include "MachineState.cpp"
+#include <vector>
 
 using namespace std;
 
 int total_instructions = 14;
 
 // stringToBinary function is used since issues with stoi staying in 32 bits
-int stringToBinary(string test)
-{
+int stringToBinary(string test) {
     int result = 0;
-    for (int i = 0; i < 8; i++)
-    {
+    for(int i = 0; i < 8; i++) {
         result = result << 4;
-        switch (test[i])
-        {
+        switch(test[i]) {
 
         case '0':
             result += 0b0000;
@@ -79,24 +76,20 @@ int stringToBinary(string test)
     return result;
 }
 
-vector<vector<Instruction>> read(const string &filename)
-{
+vector<vector<Instruction>> read(const string &filename) {
     vector<vector<Instruction>> VLIW;
     vector<Instruction> CurPacket;
 
     ifstream inputFile(filename);
     string line;
 
-    if (!inputFile.is_open())
-    {
+    if(!inputFile.is_open()) {
         cerr << "Error opening file" << endl;
         return VLIW;
     }
 
-    while (getline(inputFile, line))
-    {
-        if (CurPacket.size() >= total_instructions)
-        {
+    while(getline(inputFile, line)) {
+        if(CurPacket.size() >= total_instructions) {
             VLIW.push_back(CurPacket);
             CurPacket.clear();
         }
@@ -104,8 +97,7 @@ vector<vector<Instruction>> read(const string &filename)
         istringstream iss(line);
         string word;
 
-        while (iss >> word)
-        {
+        while(iss >> word) {
 
             int num = stringToBinary(word);
             Instruction CurInstruct(num);
@@ -113,15 +105,12 @@ vector<vector<Instruction>> read(const string &filename)
         }
     }
 
-    if (!CurPacket.empty())
-    {
-        // Only push CurPacket if it contains exactly total_instructions instructions
-        if (CurPacket.size() == total_instructions)
-        {
+    if(!CurPacket.empty()) {
+        // Only push CurPacket if it contains exactly total_instructions
+        // instructions
+        if(CurPacket.size() == total_instructions) {
             VLIW.push_back(CurPacket);
-        }
-        else
-        {
+        } else {
             cout << "Warning: Incomplete packet" << endl;
         }
     }
@@ -130,8 +119,7 @@ vector<vector<Instruction>> read(const string &filename)
     return VLIW;
 }
 
-void get_data(Instruction dat)
-{
+void get_data(Instruction dat) {
     cout << "Immediate: " << dat.get_immediate() << endl;
     cout << "Destination Register: " << dat.get_rd() << endl;
     cout << "RS1: " << dat.get_rs1() << endl;
@@ -142,8 +130,7 @@ void get_data(Instruction dat)
     cout << "Type: " << dat.get_type() << endl;
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     /*Pseudo code to be implemented as suggested by Kayvan
     // error if not enough arguments
     // error if too many arguments
@@ -163,12 +150,17 @@ int main(int argc, char *argv[])
         // fetch - already done by parsing the file
 
 
-        // decode - part of the execute since instruction will go to functional unit
+        // decode - part of the execute since instruction will go to functional
+    unit
 
 
-        // execute - function proc(instruction) will be run, method written by someone else, can be modified to run each instruction of a vector or one VLIW
-        !!!!!!! Throw a warning if the destination registers of a VLIW are the same to help debug the compiler LLVM stuff in the future
-        !!!!!!! An error might occur from consts.hpp : The # of instructions comes from compiler but it's hard coded in .hpp
+        // execute - function proc(instruction) will be run, method written by
+    someone else, can be modified to run each instruction of a vector or one
+    VLIW
+        !!!!!!! Throw a warning if the destination registers of a VLIW are the
+    same to help debug the compiler LLVM stuff in the future
+        !!!!!!! An error might occur from consts.hpp : The # of instructions
+    comes from compiler but it's hard coded in .hpp
 
         // writeback - TBD who updates the machine state
     }
@@ -176,7 +168,7 @@ int main(int argc, char *argv[])
     // print final machine state (eventually)
     */
 
-    if (argc != 2) // error if wrong amount of arguments arguments
+    if(argc != 2) // error if wrong amount of arguments arguments
     {
         cerr << "Usage: " << argv[0] << " <file_path>" << endl;
         return 1;
@@ -185,36 +177,39 @@ int main(int argc, char *argv[])
     // current bug with stoi that doesn't work with the TCP file
 
     string filePath = argv[1];
-    vector<vector<Instruction>> instructions = read(filePath); // reading an parsing done here
+    vector<vector<Instruction>> instructions =
+        read(filePath); // reading an parsing done here
 
-    MachineState test(0); // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
+    MachineState test(0); // initial machine state (!!!!!!!!!!!! This will be a
+                          // bug that needs to be changed)
 
     // Throw warnings if same destination
-    for (int i = 0; i < instructions.size(); i++)
-    {
-        for (int j = 0; i < instructions.at(i).size() - 1; j++)
-        {
-            for (int k = 1; k < instructions.at(i).size(); k++)
-                if (instructions.at(i).at(j).get_rd() == instructions.at(i).at(k).get_rd())
-                {
-                    cout << j << " and " << k << " have the same destination register in Instruction " << i << endl;
+    for(int i = 0; i < instructions.size(); i++) {
+        for(int j = 0; i < instructions.at(i).size() - 1; j++) {
+            for(int k = 1; k < instructions.at(i).size(); k++)
+                if(instructions.at(i).at(j).get_rd() ==
+                   instructions.at(i).at(k).get_rd()) {
+                    cout
+                        << j << " and " << k
+                        << " have the same destination register in Instruction "
+                        << i << endl;
                 }
         }
     }
 
-    while (test.running)
-    {
-        proc_instruction(instructions, test);
+    while(test.running) {
+        processInstruction(instructions, test);
     }
 
     /*
-    // starting here 1.0, this creates an output file that I needed in order to test that I was parsing the instructions properly
+    // starting here 1.0, this creates an output file that I needed in order to
+    test that I was parsing the instructions properly
 
     ofstream outfile("text.txt");
     if (!outfile.is_open())
     {
-        cerr << "Error: Could not open the file 'text.txt' for writing." << endl;
-        return 1;
+        cerr << "Error: Could not open the file 'text.txt' for writing." <<
+    endl; return 1;
     }
 
     int i = 0;
