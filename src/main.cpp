@@ -177,8 +177,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // current bug with stoi that doesn't work with the TCP file
-
     string filePath_instruction = argv[1];
     string filePath_config = argv[2];
 
@@ -211,7 +209,7 @@ int main(int argc, char *argv[])
     while (Machine0.running)
     {
 
-        processInstruction(instructions, Machine0);
+        // processInstruction(instructions, Machine0);
     }
 
     cout << "Hello, World!" << endl;
