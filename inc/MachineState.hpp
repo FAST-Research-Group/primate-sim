@@ -44,5 +44,25 @@ public:
     memory[address] = value;
   }
 
+  Register getRegister(int regNum)
+  {
+    return registerFile.at(regNum);
+  }
+
+  std::vector<Register> getRegister(int startReg, int endReg)
+  {
+    std::vector<Register> result;
+    for (int i = startReg; i <= endReg; i++)
+    {
+      result.push_back(registerFile.at(i));
+    }
+    return result;
+  }
+
+  void setRegister(int regNum, Register value)
+  {
+    registerFile.at(regNum) = value;
+  }
+
   MachineState(uint64_t starting_addr);
 };
