@@ -26,7 +26,7 @@ private:
     int immediate;
     string assembly;
     type inst;
-
+public:
     Instruction(int raw_instruction)
     {
         this->raw_instruction = raw_instruction;

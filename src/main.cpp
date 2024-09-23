@@ -3,11 +3,107 @@
 #include <vector>
 #include <sstream>
 #include <string>
+#include <cstdint>
+#include "MachineState.cpp"
 #include "Instruction.cpp"
-
+#include "FunctionalUnit.hpp"
 using namespace std;
 
 int total_instructions = 14;
+int num_BFU = 0;
+int num_merged = 0;
+
+void readNumUnits(string filename)
+{
+    ifstream inputFile(filename);
+    string line;
+
+    if (!inputFile.is_open())
+    {
+        cerr << "Error opening file" << endl;
+        return;
+    }
+    while (getline(inputFile, line))
+    {
+        istringstream iss(line);
+        string word;
+        while (iss >> word)
+        {
+            string word1 = word.substr(0, 9);
+            if (word1.compare("NUM_ALUS=") == 0)
+            {
+                continue;
+            }
+        }
+    }
+}
+// stringToBinary function is used since issues with stoi staying in 32 bits
+int stringToBinary(string test)
+{
+    int result = 0;
+    for (int i = 0; i < 8; i++)
+    {
+        result = result << 4;
+        switch (test[i])
+        {
+
+        case '0':
+            result += 0b0000;
+            break;
+        case '1':
+            result += 0b0001;
+            break;
+        case '2':
+            result += 0b0010;
+            break;
+        case '3':
+            result += 0b0011;
+            break;
+        case '4':
+            result += 0b0100;
+            break;
+        case '5':
+            result += 0b0101;
+            break;
+        case '6':
+            result += 0b0110;
+            break;
+        case '7':
+            result += 0b0111;
+            break;
+        case '8':
+            result += 0b1000;
+            break;
+        case '9':
+            result += 0b1001;
+            break;
+        case 'a':
+        case 'A':
+            result += 0b1010;
+            break;
+        case 'b':
+        case 'B':
+            result += 0b1011;
+            break;
+        case 'c':
+        case 'C':
+            result += 0b1100;
+            break;
+        case 'd':
+        case 'D':
+            result += 0b1101;
+            break;
+        case 'e':
+        case 'E':
+            result += 0b1110;
+            break;
+        default:
+            result += 0b1111;
+            break;
+        }
+    }
+    return result;
+}
 
 vector<vector<Instruction>> read(const string &filename)
 {
@@ -36,7 +132,9 @@ vector<vector<Instruction>> read(const string &filename)
 
         while (iss >> word)
         {
-            Instruction CurInstruct(stoi(word, 0, 16));
+
+            int num = stringToBinary(word);
+            Instruction CurInstruct(num);
             CurPacket.push_back(CurInstruct);
         }
     }
@@ -72,35 +170,47 @@ void get_data(Instruction dat)
 
 int main(int argc, char *argv[])
 {
-    if (argc != 2)
+
+    if (argc != 3) // error if wrong amount of arguments arguments
     {
         cerr << "Usage: " << argv[0] << " <file_path>" << endl;
         return 1;
     }
 
-    string filePath = argv[1];
-    vector<vector<Instruction>> instructions = read(filePath);
+    string filePath_instruction = argv[1];
+    string filePath_config = argv[2];
 
-    ofstream outfile("text.txt");
-    if (!outfile.is_open())
-    {
-        cerr << "Error: Could not open the file 'text.txt' for writing." << endl;
-        return 1;
-    }
+    // reading an parsing done here (bug will appear since "consts.hpp" has different dimensions for VLIW than my hardcoded main)
+    vector<vector<Instruction>> instructions = read(filePath_instruction);
 
-    int i = 0;
-    while (i < instructions.size())
+    vector<shared_ptr<FunctionalUnit>> allUnits; // IDK why this works, but stack overflow says it does
+
+    MachineState Machine0(0); // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
+
+    // Initialize Functional Units over here
+
+    // Throw warnings if same destination
+    // If statement necessary in order to make sure that I don't get an out of range exception from the nested for loopss
+    if (instructions.size() >= 2)
     {
-        int j = 0; // Reset j for each new outer loop iteration
-        while (j < instructions.at(i).size())
+        for (int i = 0; i < instructions.size(); i++)
         {
-            outfile << instructions.at(i).at(j).get_instruction() << endl;
-            j++;
+            for (int j = 0; i < instructions.at(i).size() - 1; j++)
+            {
+                for (int k = j + 1; k < instructions.at(i).size(); k++)
+                    if (instructions.at(i).at(j).get_rd() == instructions.at(i).at(k).get_rd())
+                    {
+                        cout << j << " and " << k << " have the same destination register in Instruction " << i << endl;
+                    }
+            }
         }
-        i++;
     }
 
-    outfile.close();
+    while (Machine0.running)
+    {
+
+        // processInstruction(instructions, Machine0);
+    }
 
     cout << "Hello, World!" << endl;
     return 0;
