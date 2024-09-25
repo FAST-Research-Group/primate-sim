@@ -47,7 +47,7 @@ void BranchUnit::processInstruction(Instruction &I, MachineState &MS)
   switch (I.get_type())
   {
   case 'J':
-    MS.setPC(MS.getPC() + I.get_immediate());
+    MS.setPC(MS.getPC() + I.get_immediate()); // not sure how to interpret spreadsheet for this instruction. Debugging might be needed here
     break;
   case 'B':
     switch (I.get_funct3())
