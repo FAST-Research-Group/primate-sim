@@ -191,11 +191,11 @@ int main(int argc, char *argv[])
     // reading an parsing done here (bug will appear since "consts.hpp" has different dimensions for VLIW than my hardcoded main)
     vector<vector<Instruction>> instructions = read(filePath_instruction);
 
-    vector<shared_ptr<FunctionalUnit>> allUnits; // IDK why this works, but stack overflow says it does
+    vector<FunctionalUnit> allUnits; // IDK why this works, but stack overflow says it does
 
     while (num_branch != 0)
     {
-        allUnits.push_back(make_shared<BranchUnit>());
+        allUnits.push_back(BranchUnit());
         num_branch--;
     }
     // while (num_BFU != 0) add back when BFU is written
@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
     // }
     while (num_merged != 0)
     {
-        allUnits.push_back(make_shared<ALU>()); // This needs to change in order to accomodate between green and blue functional unit once wrapper class is written
+        allUnits.push_back(ALU()); // This needs to change in order to accomodate between green and blue functional unit once wrapper class is written
         num_merged--;
     }
 
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < allUnits.size(); i++)
         {
             Instruction &temp_instr = instructions.at(CurrentState.getPC()).at(i);
-            allUnits.at(i)->processInstruction(temp_instr, NextState);
+            allUnits.at(i).processInstruction(temp_instr, NextState);
         }
         CurrentState = NextState;
         // processInstruction(instructions, Machine0);

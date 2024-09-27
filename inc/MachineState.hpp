@@ -39,9 +39,22 @@ struct MachineState
     return result;
   }
 
-  void setMem(uint64_t address, Register value)
+  void setMem(uint64_t address, Register value, int num_bytes)
   {
-    memory[address] = value;
+    switch (num_bytes)
+    {
+    case 1:
+      memory[address] = value & 0x0FF;
+    case 2:
+      memory[address] = value & 0x0FF;
+      memory[address + 1] = (value >> 8) & 0x0FF;
+    case 4:
+    default:
+      memory[address] = value & 0x0FF;
+      memory[address + 1] = (value >> 8) & 0x0FF;
+      memory[address + 2] = (value >> 16) & 0x0FF;
+      memory[address + 3] = (value >> 24) & 0x0FF;
+    }
   }
 
   Register getRegister(int regNum)

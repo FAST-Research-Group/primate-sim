@@ -5,143 +5,141 @@ BranchUnit::BranchUnit() { pc = 0; }
 
 BranchUnit::~BranchUnit() {}
 
-int32_t BranchUnit::j(int32_t imm) { return pc + imm; }
+uint64_t BranchUnit::j(uint64_t imm) { return pc + imm; }
 
-int32_t BranchUnit::jr(int32_t imm) { return imm; }
+uint64_t BranchUnit::jr(uint64_t imm) { return imm; }
 
-int32_t BranchUnit::beq(int32_t a, int32_t b) { return a == b ? 1 : 0; }
+uint64_t BranchUnit::beq(uint64_t a, uint64_t b) { return a == b ? 1 : 0; }
 
-int32_t BranchUnit::bne(int32_t a, int32_t b) { return a != b ? 1 : 0; }
+uint64_t BranchUnit::bne(uint64_t a, uint64_t b) { return a != b ? 1 : 0; }
 
-int32_t BranchUnit::blt(int32_t a, int32_t b) { return a < b ? 1 : 0; }
+uint64_t BranchUnit::blt(uint64_t a, uint64_t b) { return a < b ? 1 : 0; }
 
-int32_t BranchUnit::bge(int32_t a, int32_t b) { return a >= b ? 1 : 0; }
+uint64_t BranchUnit::bge(uint64_t a, uint64_t b) { return a >= b ? 1 : 0; }
 
-int32_t BranchUnit::bltu(int32_t a, uint32_t b) { return a < b ? 1 : 0; }
+uint64_t BranchUnit::bltu(uint64_t a, uint64_t b) { return a < b ? 1 : 0; }
 
-int32_t BranchUnit::bgeu(int32_t a, uint32_t b) { return a >= b ? 1 : 0; }
+uint64_t BranchUnit::bgeu(uint64_t a, uint64_t b) { return a >= b ? 1 : 0; }
 
-int32_t BranchUnit::end() { return 0; }
+uint64_t BranchUnit::end() { return 0; }
 
 void BranchUnit::processInstruction(Instruction &I, MachineState &MS)
 {
-  switch (I.get_type())
-  {
-  case 'J':
-    MS.setPC(MS.getPC() + I.get_immediate()); // not sure how to interpret spreadsheet for this instruction. Debugging might be needed here
-    break;
-  case 'B':
-    switch (I.get_funct3())
+    switch (I.get_type())
     {
-    case 0:
-      (I.get_rs1() == I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
-    case 1:
-      (I.get_rs1() != I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
-    case 4:
-      (I.get_rs1() < I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
-    case 6:
-      (((unsigned)I.get_rs1()) < ((unsigned)I.get_rs2())) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
-    case 5:
-      (I.get_rs1() >= I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
-    case 7:
-      (((unsigned)I.get_rs1()) >= ((unsigned)I.get_rs2())) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
+    case 'J':
+        MS.setPC(MS.getPC() + I.get_immediate()); // not sure how to interpret spreadsheet for this instruction. Debugging might be needed here
+        break;
+    case 'B':
+        switch (I.get_funct3())
+        {
+        case 0:
+            (I.get_rs1() == I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
+        case 1:
+            (I.get_rs1() != I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
+        case 4:
+            (I.get_rs1() < I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
+        case 6:
+            (((unsigned)I.get_rs1()) < ((unsigned)I.get_rs2())) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
+        case 5:
+            (I.get_rs1() >= I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
+        case 7:
+            (((unsigned)I.get_rs1()) >= ((unsigned)I.get_rs2())) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
+        }
+    default:
+        MS.setPC(MS.getPC() + 4);
     }
-  default:
-    MS.setPC(MS.getPC() + 4);
-  }
-}
-
-void ALU::processInstruction(Instruction &I, MachineState &MS) {
-
 }
 
 ALU::ALU() { pc = 0; }
 
 ALU::~ALU() {}
 
-int32_t ALU::add(int32_t a, int32_t b) { return a + b; }
+Register ALU::add(Register a, Register b) { return a + b; }
 
-int32_t ALU::addi(int32_t a, int32_t imm) { return a + imm; }
+Register ALU::addi(Register a, Register imm) { return a + imm; }
 
-int32_t ALU::sub(int32_t a, int32_t b) { return a - b; }
+Register ALU::sub(Register a, Register b) { return a - b; }
 
-int32_t ALU::lui(int32_t imm) { return imm << 12; }
+Register ALU::lui(Register imm) { return imm << 12; }
 
-int32_t ALU::slti(int32_t a, int32_t imm) { return a < imm ? 1 : 0; }
+Register ALU::slti(Register a, Register imm) { return a < imm ? 1 : 0; }
 
-int32_t ALU::sltiu(int32_t a, uint32_t imm) { return a < imm ? 1 : 0; }
+Register ALU::sltiu(Register a, Register imm) { return a < imm ? 1 : 0; }
 
-int32_t ALU::andi(int32_t a, int32_t imm) { return a & imm; }
+Register ALU::andi(Register a, Register imm) { return a & imm; }
 
-int32_t ALU::ori(int32_t a, int32_t imm) { return a | imm; }
+Register ALU::ori(Register a, Register imm) { return a | imm; }
 
-int32_t ALU::xori(int32_t a, int32_t imm) { return a ^ imm; }
+Register ALU::xori(Register a, Register imm) { return a ^ imm; }
 
-int32_t ALU::snez(int32_t a) { return a != 0 ? 1 : 0; }
+Register ALU::snez(Register a) { return a != 0 ? 1 : 0; }
 
-int32_t ALU::and_op(int32_t a, int32_t b) { return a & b; }
+Register ALU::and_op(Register a, Register b) { return a & b; }
 
-int32_t ALU::or_op(int32_t a, int32_t b) { return a | b; }
+Register ALU::or_op(Register a, Register b) { return a | b; }
 
-int32_t ALU::xor_op(int32_t a, int32_t b) { return a ^ b; }
+Register ALU::xor_op(Register a, Register b) { return a ^ b; }
 
-int32_t ALU::not_op(int32_t a) { return ~a; }
+Register ALU::not_op(Register a) { return ~a; }
 
-int32_t ALU::slli(int32_t a, int32_t shift) { return a << shift; }
+Register ALU::slli(Register a, Register shift) { return a << (int)shift; }
 
-int32_t ALU::srli(int32_t a, int32_t shift) { return a >> shift; }
+Register ALU::srli(Register a, Register shift) { return a >> (int)shift; }
 
-int32_t ALU::srai(int32_t a, int32_t shift)
+Register ALU::srai(Register a, Register shift)
 {
-  int32_t mask = 1 << 31;
-  return (a >> shift) | (mask >> shift);
+    Register mask = 1 << 31;
+    return (a >> (int)shift) | (mask >> (int)shift);
 }
 
-int32_t ALU::sll(int32_t a, int32_t b) { return a << b; }
+Register ALU::sll(Register a, Register b) { return a << (int)b; }
 
-int32_t ALU::srl(int32_t a, int32_t b) { return a >> b; }
+Register ALU::srl(Register a, Register b) { return a >> (int)b; }
 
-int32_t ALU::sra(int32_t a, int32_t b)
+Register ALU::sra(Register a, Register b)
 {
-  int32_t mask = 1 << 31;
-  return (a >> b) | (mask >> b);
+    Register mask = 1 << 31;
+    return (a >> (int)b) | (mask >> (int)b);
 }
 
-void ALU::processRType(Instruction &I, MachineState &MS) {
-    switch(I.get_funct3()) {
+void ALU::processRType(Instruction &I, MachineState &MS)
+{
+    switch (I.get_funct3())
+    {
     case 0x0: // ADD or SUB
-        if(I.get_funct7() == 0x00)
-            MS.writeRegister(I.get_rd(), add(MS.readRegister(I.get_rs1()),
-                                             MS.readRegister(I.get_rs2())));
-        else if(I.get_funct7() == 0x20)
-            MS.writeRegister(I.get_rd(), sub(MS.readRegister(I.get_rs1()),
-                                             MS.readRegister(I.get_rs2())));
+        if (I.get_funct7() == 0x00)
+            MS.setRegister(I.get_rd(), add(MS.getRegister(I.get_rs1()),
+                                           MS.getRegister(I.get_rs2())));
+        else if (I.get_funct7() == 0x20)
+            MS.setRegister(I.get_rd(), sub(MS.getRegister(I.get_rs1()),
+                                           MS.getRegister(I.get_rs2())));
         break;
     case 0x7: // AND
-        MS.writeRegister(I.get_rd(), and_op(MS.readRegister(I.get_rs1()),
-                                            MS.readRegister(I.get_rs2())));
+        MS.setRegister(I.get_rd(), and_op(MS.getRegister(I.get_rs1()),
+                                          MS.getRegister(I.get_rs2())));
         break;
     case 0x6: // OR
-        MS.writeRegister(I.get_rd(), or_op(MS.readRegister(I.get_rs1()),
-                                           MS.readRegister(I.get_rs2())));
+        MS.setRegister(I.get_rd(), or_op(MS.getRegister(I.get_rs1()),
+                                         MS.getRegister(I.get_rs2())));
         break;
     case 0x4: // XOR
-        MS.writeRegister(I.get_rd(), xor_op(MS.readRegister(I.get_rs1()),
-                                            MS.readRegister(I.get_rs2())));
+        MS.setRegister(I.get_rd(), xor_op(MS.getRegister(I.get_rs1()),
+                                          MS.getRegister(I.get_rs2())));
         break;
     case 0x1: // SLL (Shift Left Logical)
-        MS.writeRegister(I.get_rd(), slli(MS.readRegister(I.get_rs1()),
-                                          MS.readRegister(I.get_rs2()) & 0x1F));
+        MS.setRegister(I.get_rd(), slli(MS.getRegister(I.get_rs1()),
+                                        MS.getRegister(I.get_rs2()) & 0x1F));
         break;
     case 0x5: // SRL or SRA (Shift Right Logical or Arithmetic)
-        if(I.get_funct7() == 0x00)
-            MS.writeRegister(I.get_rd(),
-                             srli(MS.readRegister(I.get_rs1()),
-                                  MS.readRegister(I.get_rs2()) & 0x1F));
-        else if(I.get_funct7() == 0x20)
-            MS.writeRegister(I.get_rd(),
-                             srai(MS.readRegister(I.get_rs1()),
-                                  MS.readRegister(I.get_rs2()) & 0x1F));
+        if (I.get_funct7() == 0x00)
+            MS.setRegister(I.get_rd(),
+                           srli(MS.getRegister(I.get_rs1()),
+                                MS.getRegister(I.get_rs2()) & 0x1F));
+        else if (I.get_funct7() == 0x20)
+            MS.setRegister(I.get_rd(),
+                           srai(MS.getRegister(I.get_rs1()),
+                                MS.getRegister(I.get_rs2()) & 0x1F));
         break;
     // Handle other R-type instructions...
     default:
@@ -152,43 +150,45 @@ void ALU::processRType(Instruction &I, MachineState &MS) {
 }
 
 // Process I-type instructions
-void ALU::processIType(Instruction &I, MachineState &MS) {
-    switch(I.get_funct3()) {
+void ALU::processIType(Instruction &I, MachineState &MS)
+{
+    switch (I.get_funct3())
+    {
     case 0x0: // ADDI
-        MS.writeRegister(I.get_rd(),
-                         addi(MS.readRegister(I.get_rs1()), I.get_immediate()));
+        MS.setRegister(I.get_rd(),
+                       addi(MS.getRegister(I.get_rs1()), I.get_immediate()));
         break;
     case 0x2: // SLTI
-        MS.writeRegister(I.get_rd(),
-                         slti(MS.readRegister(I.get_rs1()), I.get_immediate()));
+        MS.setRegister(I.get_rd(),
+                       slti(MS.getRegister(I.get_rs1()), I.get_immediate()));
         break;
     case 0x3: // SLTIU
-        MS.writeRegister(
-            I.get_rd(), sltiu(MS.readRegister(I.get_rs1()), I.get_immediate()));
+        MS.setRegister(
+            I.get_rd(), sltiu(MS.getRegister(I.get_rs1()), I.get_immediate()));
         break;
     case 0x7: // ANDI
-        MS.writeRegister(I.get_rd(),
-                         andi(MS.readRegister(I.get_rs1()), I.get_immediate()));
+        MS.setRegister(I.get_rd(),
+                       andi(MS.getRegister(I.get_rs1()), I.get_immediate()));
         break;
     case 0x6: // ORI
-        MS.writeRegister(I.get_rd(),
-                         ori(MS.readRegister(I.get_rs1()), I.get_immediate()));
+        MS.setRegister(I.get_rd(),
+                       ori(MS.getRegister(I.get_rs1()), I.get_immediate()));
         break;
     case 0x4: // XORI
-        MS.writeRegister(I.get_rd(),
-                         xori(MS.readRegister(I.get_rs1()), I.get_immediate()));
+        MS.setRegister(I.get_rd(),
+                       xori(MS.getRegister(I.get_rs1()), I.get_immediate()));
         break;
     case 0x1: // SLLI (Shift Left Logical Immediate)
-        MS.writeRegister(I.get_rd(),
-                         slli(MS.readRegister(I.get_rs1()), I.getShamt()));
+        MS.setRegister(I.get_rd(),
+                       slli(MS.getRegister(I.get_rs1()), I.get_immediate()));
         break;
     case 0x5: // SRLI or SRAI (Shift Right Logical Immediate or Arithmetic)
-        if(I.get_funct7() == 0x00)
-            MS.writeRegister(I.get_rd(),
-                             srli(MS.readRegister(I.get_rs1()), I.getShamt()));
-        else if(I.get_funct7() == 0x20)
-            MS.writeRegister(I.get_rd(),
-                             srai(MS.readRegister(I.get_rs1()), I.getShamt()));
+        if (I.get_funct7() == 0x00)
+            MS.setRegister(I.get_rd(),
+                           srli(MS.getRegister(I.get_rs1()), I.get_immediate()));
+        else if (I.get_funct7() == 0x20)
+            MS.setRegister(I.get_rd(),
+                           srai(MS.getRegister(I.get_rs1()), I.get_immediate()));
         break;
     // Handle other I-type instructions...
     default:
@@ -199,17 +199,19 @@ void ALU::processIType(Instruction &I, MachineState &MS) {
 }
 
 // Process S-type (Store) instructions
-void ALU::processSType(Instruction &I, MachineState &MS) {
-    int32_t address = MS.readRegister(I.get_rs1()) + I.get_immediate();
-    switch(I.get_funct3()) {
+void ALU::processSType(Instruction &I, MachineState &MS)
+{
+    Register address = MS.getRegister(I.get_rs1()) + I.get_immediate();
+    switch (I.get_funct3())
+    {
     case 0x0: // SB (Store Byte)
-        MS.writeMemory8(address, MS.readRegister(I.get_rs2()) & 0xFF);
+        MS.setMem((int)address, MS.getRegister(I.get_rs2()) & 0xFF, 1);
         break;
     case 0x1: // SH (Store Halfword)
-        MS.writeMemory16(address, MS.readRegister(I.get_rs2()) & 0xFFFF);
+        MS.setMem((int)address, MS.getRegister(I.get_rs2()) & 0xFFFF, 2);
         break;
     case 0x2: // SW (Store Word)
-        MS.writeMemory32(address, MS.readRegister(I.get_rs2()));
+        MS.setMem((int)address, MS.getRegister(I.get_rs2()), 4);
         break;
     // Handle other S-type instructions...
     default:
@@ -219,15 +221,16 @@ void ALU::processSType(Instruction &I, MachineState &MS) {
     }
 }
 
-
 // Process U-type (Upper Immediate) instructions
-void ALU::processUType(Instruction &I, MachineState &MS) {
-    switch(I.get_opcode()) {
+void ALU::processUType(Instruction &I, MachineState &MS)
+{
+    switch (I.get_opcode())
+    {
     case 0x37: // LUI (Load Upper Immediate)
-        MS.writeRegister(I.get_rd(), lui(I.get_immediate()));
+        MS.setRegister(I.get_rd(), lui(I.get_immediate()));
         break;
     case 0x17: // AUIPC (Add Upper Immediate to PC)
-        MS.writeRegister(I.get_rd(), MS.readPC() + I.get_immediate());
+        MS.setRegister(I.get_rd(), MS.getPC() + I.get_immediate());
         break;
     // Handle other U-type instructions...
     default:
@@ -238,8 +241,10 @@ void ALU::processUType(Instruction &I, MachineState &MS) {
 }
 
 // Process the instruction based on its opcode
-void ALU::processInstruction(Instruction &I, MachineState &MS) {
-    switch(I.get_opcode()) {
+void ALU::processInstruction(Instruction &I, MachineState &MS)
+{
+    switch (I.get_opcode())
+    {
     case 0x33: // R-type instructions
         processRType(I, MS);
         break;
@@ -254,7 +259,7 @@ void ALU::processInstruction(Instruction &I, MachineState &MS) {
         processSType(I, MS);
         break;
     case 0x63: // B-type instructions (branch)
-        processBType(I, MS);
+        // processBType(I, MS); brokie
         break;
     case 0x37: // U-type instructions (LUI)
     case 0x17: // U-type instructions (AUIPC)

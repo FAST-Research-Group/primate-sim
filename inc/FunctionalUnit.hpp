@@ -9,7 +9,7 @@ class FunctionalUnit
 public:
   virtual ~FunctionalUnit() = default;
 
-  virtual void processInstruction(Instruction &I, MachineState &MS) = 0;
+  virtual void processInstruction(Instruction &I, MachineState &MS) { exit(-1); }
 };
 
 #endif
