@@ -83,6 +83,11 @@ class ALU : public FunctionalUnit {
   int32_t srl(int32_t a, int32_t b);
   int32_t sra(int32_t a, int32_t b);
 
-  virtual void processInstruction(Instruction &I, MachineState &MS) override;
+    void processRType(Instruction &I, MachineState &MS);
+    void processIType(Instruction &I, MachineState &MS);
+    void processSType(Instruction &I, MachineState &MS);
+    void processBType(Instruction &I, MachineState &MS);
+    void processUType(Instruction &I, MachineState &MS);  
+    virtual void processInstruction(Instruction &I, MachineState &MS) override;
 };
 
