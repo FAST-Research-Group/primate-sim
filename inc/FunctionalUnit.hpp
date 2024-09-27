@@ -1,6 +1,12 @@
-#include "MachineState.hpp"
-#include "Instruction.h"
+#pragma once
 
-class FunctionalUnit {
-  virtual void processInstruction(Instruction& I, MachineState& MS) = 0;
+#include "Instruction.h"
+#include "MachineState.hpp"
+
+class FunctionalUnit
+{
+public:
+  virtual ~FunctionalUnit() = default;
+
+  virtual void processInstruction(Instruction &I, MachineState &MS) = 0;
 };

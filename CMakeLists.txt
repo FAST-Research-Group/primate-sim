@@ -7,8 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-
-cmake_policy(SET CMP0167 NEW)
 find_package(Boost COMPONENTS program_options regex REQUIRED)
 
 file(GLOB SOURCES "src/*.cpp")

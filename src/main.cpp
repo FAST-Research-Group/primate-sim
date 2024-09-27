@@ -5,13 +5,15 @@
 #include <string>
 #include <cstdint>
 #include "MachineState.cpp"
+#include <alu.hpp>
 #include "Instruction.cpp"
 #include "FunctionalUnit.hpp"
 using namespace std;
 
-int total_instructions = 14;
+int instruction_width = 0;
 int num_BFU = 0;
 int num_merged = 0;
+int num_branch = 1;
 
 void readNumUnits(string filename)
 {
@@ -32,11 +34,17 @@ void readNumUnits(string filename)
             string word1 = word.substr(0, 9);
             if (word1.compare("NUM_ALUS=") == 0)
             {
-                continue;
+                num_merged = stoi(word.substr(10), 0, 10);
+            }
+            if (word1.compare("NUM_BFUS=") == 0)
+            {
+                num_BFU = stoi(word.substr(10), 0, 10) - 1; // -1 for the branch. I don't know what to do about the branch unit yet
             }
         }
     }
+    instruction_width = num_BFU + num_branch + num_merged;
 }
+
 // stringToBinary function is used since issues with stoi staying in 32 bits
 int stringToBinary(string test)
 {
@@ -121,7 +129,7 @@ vector<vector<Instruction>> read(const string &filename)
 
     while (getline(inputFile, line))
     {
-        if (CurPacket.size() >= total_instructions)
+        if (CurPacket.size() >= instruction_width)
         {
             VLIW.push_back(CurPacket);
             CurPacket.clear();
@@ -141,8 +149,8 @@ vector<vector<Instruction>> read(const string &filename)
 
     if (!CurPacket.empty())
     {
-        // Only push CurPacket if it contains exactly total_instructions instructions
-        if (CurPacket.size() == total_instructions)
+        // Only push CurPacket if it contains exactly instruction_width instructions
+        if (CurPacket.size() == instruction_width)
         {
             VLIW.push_back(CurPacket);
         }
@@ -185,7 +193,23 @@ int main(int argc, char *argv[])
 
     vector<shared_ptr<FunctionalUnit>> allUnits; // IDK why this works, but stack overflow says it does
 
-    MachineState Machine0(0); // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
+    while (num_branch != 0)
+    {
+        allUnits.push_back(make_shared<BranchUnit>());
+        num_branch--;
+    }
+    // while (num_BFU != 0) add back when BFU is written
+    // {
+    //     allUnits.push_back(make_shared<BFU>());
+    //     num_BFU--;
+    // }
+    while (num_merged != 0)
+    {
+        allUnits.push_back(make_shared<ALU>()); // This needs to change in order to accomodate between green and blue functional unit once wrapper class is written
+        num_merged--;
+    }
+
+    MachineState CurrentState(0), NextState(0); // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
 
     // Initialize Functional Units over here
 
@@ -206,9 +230,14 @@ int main(int argc, char *argv[])
         }
     }
 
-    while (Machine0.running)
+    while (CurrentState.running)
     {
-
+        for (int i = 0; i < allUnits.size(); i++)
+        {
+            Instruction &temp_instr = instructions.at(CurrentState.getPC()).at(i);
+            allUnits.at(i)->processInstruction(temp_instr, NextState);
+        }
+        CurrentState = NextState;
         // processInstruction(instructions, Machine0);
     }
 
