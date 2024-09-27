@@ -1,6 +1,7 @@
-#pragma once
+#ifndef FUNCTIONALUNIT_H
+#define FUNCTIONALUNIT_H
 
-#include "Instruction.h"
+#include "Instruction.hpp"
 #include "MachineState.hpp"
 
 class FunctionalUnit
@@ -10,3 +11,5 @@ public:
 
   virtual void processInstruction(Instruction &I, MachineState &MS) = 0;
 };
+
+#endif

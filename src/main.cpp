@@ -4,9 +4,9 @@
 #include <sstream>
 #include <string>
 #include <cstdint>
-#include "MachineState.cpp"
-#include <alu.hpp>
-#include "Instruction.cpp"
+#include "MachineState.hpp"
+#include "alu.hpp"
+#include "Instruction.hpp"
 #include "FunctionalUnit.hpp"
 using namespace std;
 

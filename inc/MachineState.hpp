@@ -1,13 +1,13 @@
-#pragma once
+#ifndef MACHINESTATE_H
+#define MACHINESTATE_H
 
 #include "Register.hpp"
 #include <cstdint>
 #include <vector>
 #include <map>
 
-class MachineState
+struct MachineState
 {
-public:
   std::vector<Register> registerFile;
   std::map<uint64_t, Register> memory;
 
@@ -66,3 +66,5 @@ public:
 
   MachineState(uint64_t starting_addr);
 };
+
+#endif

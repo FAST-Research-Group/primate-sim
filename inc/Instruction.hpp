@@ -5,6 +5,9 @@
 #ifndef PROPERVLIWPARSING_INSTRUCTION_H
 #define PROPERVLIWPARSING_INSTRUCTION_H
 
+#include <iostream>
+#include <string>
+
 // 20, 12, 31, 11 masks
 class Instruction
 {

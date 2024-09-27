@@ -1,8 +1,7 @@
-#include <stdio.h>
-#include <FunctionalUnit.hpp>
-
-
-
+#include "FunctionalUnit.hpp"
+#include "alu.hpp"
+#include <cstdio>
+#include <memory>
 
 class FunctionalUnitWrapper
 {
@@ -23,12 +22,6 @@ public:
         for (int i = 0; i < numGreenUnits; ++i)
         {
             functionalUnits.push_back(std::make_unique<GreenFunctionalUnit>());
-        }
-
-        // Add Merged functional units
-        for (int i = 0; i < numMergedUnits; ++i)
-        {
-            functionalUnits.push_back(std::make_unique<MergedFunctionalUnit>());
         }
     }
 
