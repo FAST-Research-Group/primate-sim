@@ -1,3 +1,0 @@
-#include "Instruction.hpp"
-
-class
