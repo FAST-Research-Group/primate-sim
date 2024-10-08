@@ -4,6 +4,8 @@
 #include <sstream>
 #include <string>
 #include <cstdint>
+#include <unordered_set>
+#include <memory>
 #include "PrimateConfig.hpp"
 #include "MachineState.hpp"
 #include "alu.hpp"
@@ -162,54 +164,59 @@ int main(int argc, char *argv[])
   string filePath_config = argv[2];
   PrimateConfig primateCfg(filePath_config);
 
-  std::cout << "done with confgi reading\n";
+  std::cout << "done with config reading\n";
 
     // reading an parsing done here (bug will appear since "consts.hpp" has different dimensions for VLIW than my hardcoded main);
     vector<vector<Instruction>> instructions = read(filePath_instruction, primateCfg);
 
-    vector<FunctionalUnit> allUnits; // IDK why this works, but stack overflow says it does
+    vector<std::unique_ptr<FunctionalUnit>> allUnits; // IDK why this works, but stack overflow says it does
 
     for (int i = 0; i < primateCfg.num_branch; i++) {
-        allUnits.push_back(BranchUnit());
+      allUnits.push_back(std::move(std::unique_ptr<FunctionalUnit>(new BranchUnit())));
     }
     
     for (int i = 0; i < primateCfg.num_merged; i++) {
       // This needs to change in order to accomodate between green and blue functional unit once wrapper class is written
-      allUnits.push_back(ALU());
+      allUnits.push_back(std::move(std::unique_ptr<FunctionalUnit>(new ALU())));
     }
 
-    MachineState CurrentState(0), NextState(0); // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
+    // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
+    MachineState CurrentState(0), NextState(0); 
 
     // Initialize Functional Units over here
 
     // Throw warnings if same destination
     // If statement necessary in order to make sure that I don't get an out of range exception from the nested for loopss
-    if (instructions.size() >= 2)
-    {
-        for (int i = 0; i < instructions.size(); i++)
-        {
-            for (int j = 0; i < instructions.at(i).size() - 1; j++)
-            {
-                for (int k = j + 1; k < instructions.at(i).size(); k++)
-                    if (instructions.at(i).at(j).get_rd() == instructions.at(i).at(k).get_rd())
-                    {
-                        cout << j << " and " << k << " have the same destination register in Instruction " << i << endl;
-                    }
-            }
+    if (instructions.size() >= 2) {
+      for(auto& instr: instructions) {
+        std::unordered_set<int> destRegs;
+        for(auto& subInstr: instr) {
+          int rd = subInstr.get_rd();
+          if (destRegs.find(rd) == destRegs.end()) {
+            destRegs.insert(rd);
+          }
+          else {
+            auto instrIter = std::find(instructions.begin(), instructions.end(), instr);
+            std::cout << "WARNING: Two subinstrs write to same reg in Instr: "
+                      << std::distance(instructions.begin(), instrIter)
+                      << "\n";
+          }
         }
+      }
     }
 
-    while (CurrentState.running)
-    {
-        for (int i = 0; i < allUnits.size(); i++)
-        {
-            Instruction &temp_instr = instructions.at(CurrentState.getPC()).at(i);
-            allUnits.at(i).processInstruction(temp_instr, NextState);
-        }
-        CurrentState = NextState;
-        // processInstruction(instructions, Machine0);
+    while (CurrentState.running) {
+      if(CurrentState.getPC() >= instructions.size()) {
+        std::cout << "WARNING: PC larger than number of instructions!!!!!\n";
+      }
+      for (int i = 0; i < allUnits.size(); i++) {
+        Instruction &temp_instr = instructions.at(CurrentState.getPC()).at(i);
+        allUnits.at(i)->processInstruction(temp_instr, NextState);
+      }
+      CurrentState = NextState;
+      // processInstruction(instructions, Machine0);
     }
 
-    cout << "Hello, World!" << endl;
+    std::cout << "Sim ended with state!" << CurrentState << std::endl;
     return 0;
 }

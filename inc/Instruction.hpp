@@ -10,8 +10,9 @@
 
 // 20, 12, 31, 11 masks
 class Instruction {
-  private:
-    enum type { I, U, R, S, B, J, C }; // C for custom instructions
+public:
+  enum type { I, U, R, S, B, J, C }; // C for custom instructions
+private:
     int raw_instruction;
     int rd;
     int rs1;
@@ -138,6 +139,11 @@ class Instruction {
     int get_funct7() { return this->funct7; }
     type get_type() { return this->inst; }
     void to_string() { std::cout << this->assembly << std::endl; }
+  
+public:
+  bool operator==(const Instruction& other) const {
+    return this == &other;
+  }
 };
 
 #endif // PROPERVLIWPARSING_INSTRUCTION_H

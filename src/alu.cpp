@@ -27,10 +27,16 @@ void BranchUnit::processInstruction(Instruction &I, MachineState &MS)
 {
     switch (I.get_type())
     {
-    case 'J':
-        MS.setPC(MS.getPC() + I.get_immediate()); // not sure how to interpret spreadsheet for this instruction. Debugging might be needed here
+    case Instruction::type::J: {
+      if (I.get_immediate() == -1) {
+        MS.halt();
         break;
-    case 'B':
+      }
+      // FIXME: Might be wrong.
+      MS.setPC(MS.getPC() + I.get_immediate()); 
+      break;
+    }
+    case Instruction::type::B:
         switch (I.get_funct3())
         {
         case 0:
@@ -47,7 +53,7 @@ void BranchUnit::processInstruction(Instruction &I, MachineState &MS)
             (((unsigned)I.get_rs1()) >= ((unsigned)I.get_rs2())) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
         }
     default:
-        MS.setPC(MS.getPC() + 4);
+        MS.setPC(MS.getPC() + 1);
     }
 }
 

@@ -2,6 +2,7 @@
 #define MACHINESTATE_H
 
 #include "Register.hpp"
+#include <ostream>
 #include <cstdint>
 #include <vector>
 #include <map>
@@ -13,6 +14,8 @@ struct MachineState
 
   uint64_t pc;
   bool running;
+
+  void halt();
 
   uint64_t getPC()
   {
@@ -78,6 +81,8 @@ struct MachineState
   }
 
   MachineState(uint64_t starting_addr);
+
+  friend std::ostream& operator<<(std::ostream& OS, const MachineState& thing);
 };
 
 #endif
