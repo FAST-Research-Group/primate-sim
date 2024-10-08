@@ -199,6 +199,7 @@ int main(int argc, char *argv[])
             auto instrIter = std::find(instructions.begin(), instructions.end(), instr);
             std::cout << "WARNING: Two subinstrs write to same reg in Instr: "
                       << std::distance(instructions.begin(), instrIter)
+                      << " dest reg: " << rd
                       << "\n";
           }
         }
@@ -207,7 +208,8 @@ int main(int argc, char *argv[])
 
     while (CurrentState.running) {
       if(CurrentState.getPC() >= instructions.size()) {
-        std::cout << "WARNING: PC larger than number of instructions!!!!!\n";
+        std::cout << "FATAL ERROR: PC larger than number of instructions!!!!!\n";
+        exit(-1);
       }
       for (int i = 0; i < allUnits.size(); i++) {
         Instruction &temp_instr = instructions.at(CurrentState.getPC()).at(i);
@@ -217,6 +219,6 @@ int main(int argc, char *argv[])
       // processInstruction(instructions, Machine0);
     }
 
-    std::cout << "Sim ended with state!" << CurrentState << std::endl;
+    std::cout << "Sim ended with state:\n" << CurrentState << std::endl;
     return 0;
 }

@@ -107,17 +107,19 @@ private:
             this->rs1 = (raw_instruction >> 15) & ((1 << 5) - 1);
             this->rs2 = (raw_instruction >> 20) & ((1 << 5) - 1);
             break;
-        case J:
-            this->immediate +=
-                (((raw_instruction >> 31) & 1) << 20) +
-                ((((raw_instruction >> 21) & ((1 << 10) - 1))) << 1) +
-                (((raw_instruction >> 20) & 1) << 11) +
-                ((((raw_instruction >> 12) & (1 << 8) - 1)) << 12);
-            if((this->immediate & (1 << 20)) == (1 << 20)) {
-                this->immediate |= 0xFFE00000;
+        case J:{
+          int imm_19    = (((raw_instruction >> 31) & 1) << 19);
+          int imm_18_11 = ((((raw_instruction >> 12) & (1 << 8) - 1)) << 11);
+          int imm_9_0   = ((((raw_instruction >> 21) & ((1 << 10) - 1))) << 0);
+          int imm_10    = (((raw_instruction >> 20) & 1) << 10);
+          std::cout << std::hex << imm_19 << " " << imm_18_11 << " " << imm_10 << " " << imm_9_0 << std::dec << "\n";
+          this->immediate = imm_19 + imm_18_11 + imm_10 + imm_9_0;
+            if((this->immediate & (1 << 19)) == (1 << 19)) {
+                this->immediate |= 0xFFF00000;
             }
             this->rd = ((raw_instruction >> 7) & ((1 << 5) - 1));
             break;
+        }
         case C:
             this->immediate = 0;
             this->immediate += ((raw_instruction >> 20) & ((1 << 12) - 1));

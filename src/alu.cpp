@@ -28,6 +28,7 @@ void BranchUnit::processInstruction(Instruction &I, MachineState &MS)
     switch (I.get_type())
     {
     case Instruction::type::J: {
+      std::cout << "found a jump with target: " << std::hex << I.get_immediate() << "\n" << std::dec;
       if (I.get_immediate() == -1) {
         MS.halt();
         break;
