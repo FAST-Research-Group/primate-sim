@@ -4,46 +4,12 @@
 #include <sstream>
 #include <string>
 #include <cstdint>
+#include "PrimateConfig.hpp"
 #include "MachineState.hpp"
 #include "alu.hpp"
 #include "Instruction.hpp"
 #include "FunctionalUnit.hpp"
 using namespace std;
-
-int instruction_width = 0;
-int num_BFU = 0;
-int num_merged = 0;
-int num_branch = 1;
-
-void readNumUnits(string filename)
-{
-    ifstream inputFile(filename);
-    string line;
-
-    if (!inputFile.is_open())
-    {
-        cerr << "Error opening file" << endl;
-        return;
-    }
-    while (getline(inputFile, line))
-    {
-        istringstream iss(line);
-        string word;
-        while (iss >> word)
-        {
-            string word1 = word.substr(0, 9);
-            if (word1.compare("NUM_ALUS=") == 0)
-            {
-                num_merged = stoi(word.substr(10), 0, 10);
-            }
-            if (word1.compare("NUM_BFUS=") == 0)
-            {
-                num_BFU = stoi(word.substr(10), 0, 10) - 1; // -1 for the branch. I don't know what to do about the branch unit yet
-            }
-        }
-    }
-    instruction_width = num_BFU + num_branch + num_merged;
-}
 
 // stringToBinary function is used since issues with stoi staying in 32 bits
 int stringToBinary(string test)
@@ -113,7 +79,7 @@ int stringToBinary(string test)
     return result;
 }
 
-vector<vector<Instruction>> read(const string &filename)
+vector<vector<Instruction>> read(const string &filename, PrimateConfig primateCfg)
 {
     vector<vector<Instruction>> VLIW;
     vector<Instruction> CurPacket;
@@ -127,38 +93,46 @@ vector<vector<Instruction>> read(const string &filename)
         return VLIW;
     }
 
+    int line_no = 0;
     while (getline(inputFile, line))
     {
-        if (CurPacket.size() >= instruction_width)
+        line_no++;
+        if (line.size() == 0) {
+          std::cout << "warning: empty line in program LINE: " << line_no;
+          continue;
+        }
+          
+        if (CurPacket.size() >= primateCfg.instruction_width)
         {
             VLIW.push_back(CurPacket);
             CurPacket.clear();
         }
 
-        istringstream iss(line);
-        string word;
-
-        while (iss >> word)
+	int i = 0;
+        while (i < line.size())
         {
-
+            string word = line.substr(i, i+8);
             int num = stringToBinary(word);
             Instruction CurInstruct(num);
             CurPacket.push_back(CurInstruct);
+	    i += 8;
         }
     }
 
     if (!CurPacket.empty())
     {
         // Only push CurPacket if it contains exactly instruction_width instructions
-        if (CurPacket.size() == instruction_width)
+        if (CurPacket.size() == primateCfg.instruction_width)
         {
             VLIW.push_back(CurPacket);
         }
         else
         {
-            cout << "Warning: Incomplete packet" << endl;
+          cout << "Warning: Incomplete packet: Expected size: " << primateCfg.instruction_width << " Actual: " << CurPacket.size() << endl;
         }
     }
+
+    std::cout << "Found " << VLIW.size() << " Instructions\n";
 
     inputFile.close();
     return VLIW;
@@ -178,35 +152,30 @@ void get_data(Instruction dat)
 
 int main(int argc, char *argv[])
 {
+  // error if wrong amount of arguments arguments
+  if (argc != 3) {
+    cerr << "Usage: " << argv[0] << " <path to program.bin> <path to primate.cfg>" << endl;
+    return 1;
+  }
 
-    if (argc != 3) // error if wrong amount of arguments arguments
-    {
-        cerr << "Usage: " << argv[0] << " <file_path>" << endl;
-        return 1;
-    }
+  string filePath_instruction = argv[1];
+  string filePath_config = argv[2];
+  PrimateConfig primateCfg(filePath_config);
 
-    string filePath_instruction = argv[1];
-    string filePath_config = argv[2];
+  std::cout << "done with confgi reading\n";
 
-    // reading an parsing done here (bug will appear since "consts.hpp" has different dimensions for VLIW than my hardcoded main)
-    vector<vector<Instruction>> instructions = read(filePath_instruction);
+    // reading an parsing done here (bug will appear since "consts.hpp" has different dimensions for VLIW than my hardcoded main);
+    vector<vector<Instruction>> instructions = read(filePath_instruction, primateCfg);
 
     vector<FunctionalUnit> allUnits; // IDK why this works, but stack overflow says it does
 
-    while (num_branch != 0)
-    {
+    for (int i = 0; i < primateCfg.num_branch; i++) {
         allUnits.push_back(BranchUnit());
-        num_branch--;
     }
-    // while (num_BFU != 0) add back when BFU is written
-    // {
-    //     allUnits.push_back(make_shared<BFU>());
-    //     num_BFU--;
-    // }
-    while (num_merged != 0)
-    {
-        allUnits.push_back(ALU()); // This needs to change in order to accomodate between green and blue functional unit once wrapper class is written
-        num_merged--;
+    
+    for (int i = 0; i < primateCfg.num_merged; i++) {
+      // This needs to change in order to accomodate between green and blue functional unit once wrapper class is written
+      allUnits.push_back(ALU());
     }
 
     MachineState CurrentState(0), NextState(0); // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
