@@ -9,9 +9,19 @@
 #include <string>
 
 // 20, 12, 31, 11 masks
-class Instruction {
+class Instruction
+{
 public:
-  enum type { I, U, R, S, B, J, C }; // C for custom instructions
+    enum type
+    {
+        I,
+        U,
+        R,
+        S,
+        B,
+        J,
+        C
+    }; // C for custom instructions
 private:
     int raw_instruction;
     int rd;
@@ -24,14 +34,16 @@ private:
     std::string assembly;
     type inst;
 
-  public:
+public:
     Instruction() = default;
 
-    Instruction(int raw_instruction) {
+    Instruction(int raw_instruction)
+    {
         this->raw_instruction = raw_instruction;
         opcode = raw_instruction & ((1 << 7) - 1);
         // give each instruction a type in order to extract the data more easily
-        switch(opcode) {
+        switch (opcode)
+        {
         case 19:
         case 3:
             this->inst = I;
@@ -59,7 +71,8 @@ private:
         // Extract the data based on the type of instruction
         // Do the assembly string build here using more switches in the switch
         // for opcode.
-        switch(inst) {
+        switch (inst)
+        {
 
         case I: // the instruction is tested and it works. The immediate is not
                 // sign extended
@@ -67,7 +80,8 @@ private:
             this->rd = (raw_instruction >> 7) & ((1 << 5) - 1);
             this->rs1 = (raw_instruction >> 15) & ((1 << 5) - 1);
             this->immediate = (((raw_instruction >> 20) & ((1 << 13) - 1)));
-            if((this->immediate & (1 << 11)) == (1 << 11)) {
+            if ((this->immediate & (1 << 11)) == (1 << 11))
+            {
                 this->immediate |= 0xFFFFF000;
             }
             break;
@@ -88,7 +102,8 @@ private:
             this->funct3 = (raw_instruction >> 12) & ((1 << 3) - 1);
             this->rs1 = (raw_instruction >> 15) & ((1 << 5) - 1);
             this->rs2 = (raw_instruction >> 20) & ((1 << 5) - 1);
-            if((this->immediate & (1 << 11)) == (1 << 11)) {
+            if ((this->immediate & (1 << 11)) == (1 << 11))
+            {
                 this->immediate |= 0xFFFFF000;
             }
             break;
@@ -99,7 +114,8 @@ private:
                 (((raw_instruction >> 25) & ((1 << 7) - 1)) << 5);
             this->immediate += ((raw_instruction & (1 << 7)) << 4);
             this->immediate += (((raw_instruction >> 8) & ((1 << 4) - 1)) << 1);
-            if((this->immediate & (1 << 12)) == (1 << 12)) {
+            if ((this->immediate & (1 << 12)) == (1 << 12))
+            {
                 this->immediate |= 0xFFFFE000;
             }
 
@@ -107,14 +123,16 @@ private:
             this->rs1 = (raw_instruction >> 15) & ((1 << 5) - 1);
             this->rs2 = (raw_instruction >> 20) & ((1 << 5) - 1);
             break;
-        case J:{
-          int imm_19    = (((raw_instruction >> 31) & 1) << 19);
-          int imm_18_11 = ((((raw_instruction >> 12) & (1 << 8) - 1)) << 11);
-          int imm_9_0   = ((((raw_instruction >> 21) & ((1 << 10) - 1))) << 0);
-          int imm_10    = (((raw_instruction >> 20) & 1) << 10);
-          std::cout << std::hex << imm_19 << " " << imm_18_11 << " " << imm_10 << " " << imm_9_0 << std::dec << "\n";
-          this->immediate = imm_19 + imm_18_11 + imm_10 + imm_9_0;
-            if((this->immediate & (1 << 19)) == (1 << 19)) {
+        case J:
+        { // what is going on here?
+            int imm_19 = (((raw_instruction >> 31) & 1) << 19);
+            int imm_18_11 = ((((raw_instruction >> 12) & (1 << 8) - 1)) << 11);
+            int imm_9_0 = ((((raw_instruction >> 21) & ((1 << 10) - 1))) << 0);
+            int imm_10 = (((raw_instruction >> 20) & 1) << 10);
+            std::cout << std::hex << imm_19 << " " << imm_18_11 << " " << imm_10 << " " << imm_9_0 << std::dec << "\n";
+            this->immediate = imm_19 + imm_18_11 + imm_10 + imm_9_0;
+            if ((this->immediate & (1 << 19)) == (1 << 19))
+            {
                 this->immediate |= 0xFFF00000;
             }
             this->rd = ((raw_instruction >> 7) & ((1 << 5) - 1));
@@ -123,7 +141,8 @@ private:
         case C:
             this->immediate = 0;
             this->immediate += ((raw_instruction >> 20) & ((1 << 12) - 1));
-            if((this->immediate & (1 << 11)) == (1 << 11)) {
+            if ((this->immediate & (1 << 11)) == (1 << 11))
+            {
                 this->immediate |= 0xFFFFF000;
             }
             this->rs1 = (raw_instruction >> 15) & ((1 << 5) - 1);
@@ -141,11 +160,12 @@ private:
     int get_funct7() { return this->funct7; }
     type get_type() { return this->inst; }
     void to_string() { std::cout << this->assembly << std::endl; }
-  
+
 public:
-  bool operator==(const Instruction& other) const {
-    return this == &other;
-  }
+    bool operator==(const Instruction &other) const
+    {
+        return this == &other;
+    }
 };
 
 #endif // PROPERVLIWPARSING_INSTRUCTION_H
