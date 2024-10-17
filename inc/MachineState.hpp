@@ -29,7 +29,14 @@ struct MachineState
 
   Register getMem(uint64_t address)
   {
-    return memory.at(address); // Assuming Register has a `value` field
+    try
+    {
+      return memory.at(address); // Assuming Register has a `value` field
+    }
+    catch (const std::out_of_range &e)
+    {
+      throw std::runtime_error("Attempted to access uninitialized memory at address: " + std::to_string(address) + "\nIn Instruction at packet:/ " + std::to_string(pc));
+    }
   }
 
   std::vector<Register> getMem(uint64_t startAddress, uint64_t endAddress)
@@ -44,20 +51,8 @@ struct MachineState
 
   void setMem(uint64_t address, Register value, int num_bytes)
   {
-    switch (num_bytes)
-    {
-    case 1:
-      memory[address] = value & 0x0FF;
-    case 2:
-      memory[address] = value & 0x0FF;
-      memory[address + 1] = (value >> 8) & 0x0FF;
-    case 4:
-    default:
-      memory[address] = value & 0x0FF;
-      memory[address + 1] = (value >> 8) & 0x0FF;
-      memory[address + 2] = (value >> 16) & 0x0FF;
-      memory[address + 3] = (value >> 24) & 0x0FF;
-    }
+
+    memory[address] = value;
   }
 
   Register getRegister(int regNum)
@@ -82,7 +77,7 @@ struct MachineState
 
   MachineState(uint64_t starting_addr);
 
-  friend std::ostream& operator<<(std::ostream& OS, const MachineState& thing);
+  friend std::ostream &operator<<(std::ostream &OS, const MachineState &thing);
 };
 
 #endif

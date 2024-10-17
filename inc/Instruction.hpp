@@ -76,10 +76,10 @@ public:
 
         case I: // the instruction is tested and it works. The immediate is not
                 // sign extended
-            this->funct3 = (raw_instruction >> 12) & ((1 << 3) - 1);
-            this->rd = (raw_instruction >> 7) & ((1 << 5) - 1);
-            this->rs1 = (raw_instruction >> 15) & ((1 << 5) - 1);
-            this->immediate = (((raw_instruction >> 20) & ((1 << 13) - 1)));
+            this->funct3 = (raw_instruction >> 12) & 7;
+            this->rd = (raw_instruction >> 7) & 0x1F;
+            this->rs1 = (raw_instruction >> 15) & 0x1F;
+            this->immediate = ((raw_instruction >> 20) & 0x0FFF);
             if ((this->immediate & (1 << 11)) == (1 << 11))
             {
                 this->immediate |= 0xFFFFF000;

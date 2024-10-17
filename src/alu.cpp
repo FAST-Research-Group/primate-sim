@@ -27,15 +27,18 @@ void BranchUnit::processInstruction(Instruction &I, MachineState &MS)
 {
     switch (I.get_type())
     {
-    case Instruction::type::J: {
-      std::cout << "found a jump with target: " << std::hex << I.get_immediate() << "\n" << std::dec;
-      if (I.get_immediate() == -1) {
-        MS.halt();
+    case Instruction::type::J:
+    {
+        std::cout << "found a jump with target: " << std::hex << I.get_immediate() << "\n"
+                  << std::dec;
+        if (I.get_immediate() == -1)
+        {
+            MS.halt();
+            break;
+        }
+        // FIXME: Might be wrong.
+        MS.setPC(MS.getPC() + I.get_immediate());
         break;
-      }
-      // FIXME: Might be wrong.
-      MS.setPC(MS.getPC() + I.get_immediate()); 
-      break;
     }
     case Instruction::type::B:
         switch (I.get_funct3())
@@ -211,13 +214,14 @@ void ALU::processSType(Instruction &I, MachineState &MS)
     Register address = MS.getRegister(I.get_rs1()) + I.get_immediate();
     switch (I.get_funct3())
     {
-    case 0x0: // SB (Store Byte)
+    case 0x0: // SB (Store Byte) - Invalid Instruction
         MS.setMem((int)address, MS.getRegister(I.get_rs2()) & 0xFF, 1);
         break;
-    case 0x1: // SH (Store Halfword)
+    case 0x1: // SH (Store Halfword) - Invalid Instruction
         MS.setMem((int)address, MS.getRegister(I.get_rs2()) & 0xFFFF, 2);
         break;
     case 0x2: // SW (Store Word)
+        std::cout << MS.getRegister(I.get_rs2()) << " " << I.get_immediate() << " " << address << std::endl;
         MS.setMem((int)address, MS.getRegister(I.get_rs2()), 4);
         break;
     // Handle other S-type instructions...
