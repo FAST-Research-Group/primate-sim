@@ -44,17 +44,17 @@ void BranchUnit::processInstruction(Instruction &I, MachineState &MS)
         switch (I.get_funct3())
         {
         case 0:
-            (I.get_rs1() == I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
+            (I.get_rs1() == I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 1);
         case 1:
-            (I.get_rs1() != I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
+            (I.get_rs1() != I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 1);
         case 4:
-            (I.get_rs1() < I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
+            (I.get_rs1() < I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 1);
         case 6:
-            (((unsigned)I.get_rs1()) < ((unsigned)I.get_rs2())) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
+            (((unsigned)I.get_rs1()) < ((unsigned)I.get_rs2())) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 1);
         case 5:
-            (I.get_rs1() >= I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
+            (I.get_rs1() >= I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 1);
         case 7:
-            (((unsigned)I.get_rs1()) >= ((unsigned)I.get_rs2())) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 4);
+            (((unsigned)I.get_rs1()) >= ((unsigned)I.get_rs2())) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 1);
         }
     default:
         MS.setPC(MS.getPC() + 1);
