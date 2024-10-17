@@ -75,7 +75,20 @@ Register ALU::lui(Register imm) { return imm << 12; }
 
 Register ALU::slti(Register a, Register imm) { return a < imm ? 1 : 0; }
 
-Register ALU::sltiu(Register a, Register imm) { return a < imm ? 1 : 0; }
+Register ALU::sltiu(Register a, Register imm)
+{
+    Register valA = a;
+    Register cmp = imm;
+    if (valA < 0)
+    {
+        valA = valA * -1;
+    }
+    if (cmp < 0)
+    {
+        cmp = cmp * -1;
+    }
+    return valA < cmp ? 1 : 0;
+}
 
 Register ALU::andi(Register a, Register imm) { return a & imm; }
 
