@@ -91,7 +91,10 @@ Register ALU::xori(Register a, Register imm) { return a ^ imm; }
 
 Register ALU::snez(Register a) { return a != 0 ? 1 : 0; }
 
-Register ALU::and_op(Register a, Register b) { return a & b; }
+Register ALU::and_op(Register a, Register b)
+{
+    return a & b;
+}
 
 Register ALU::or_op(Register a, Register b) { return a | b; }
 
@@ -121,8 +124,7 @@ Register ALU::srl(Register a, Register b) { return a >> (int)b; }
 
 Register ALU::sra(Register a, Register b)
 {
-    Register mask = 1 << 31;
-    return (a >> (int)b) | (mask >> (int)b);
+    return (a >> (int)b);
 }
 
 Register ALU::slt(Register a, Register b)
@@ -146,7 +148,7 @@ void ALU::processRType(Instruction &I, MachineState &MS)
         {
             MS.setRegister(I.get_rd(), add(MS.getRegister(I.get_rs1()),
                                            MS.getRegister(I.get_rs2())));
-            std::cout << "Adding: " << MS.getRegister(I.get_rs1()) << " + " << MS.getRegister(I.get_rs2()) << " to " << I.get_rd() << std::endl;
+            // std::cout << "Adding: " << MS.getRegister(I.get_rs1()) << " + " << MS.getRegister(I.get_rs2()) << " to " << I.get_rd() << std::endl;
         }
         else if (I.get_funct7() == 0x20)
             MS.setRegister(I.get_rd(), sub(MS.getRegister(I.get_rs1()),
