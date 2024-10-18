@@ -77,24 +77,25 @@ Register ALU::slti(Register a, Register imm) { return a < imm ? 1 : 0; }
 
 Register ALU::sltiu(Register a, Register imm)
 {
-    Register valA = a;
-    Register cmp = imm;
-    if (valA < 0 && cmp < 0)
+    // scuffed logic but should work as intended
+    if (a < 0 && imm < 0)
     {
-        return valA < cmp ? 1 : 0;
+        return a > imm ? 1 : 0;
     }
-    else if (valA >= 0 && cmp >= 0)
-    {
-        return valA < cmp ? 1 : 0;
-    }
-    else if (valA < 0 && cmp >= 0)
-    {
-        return 1;
-    }
-    else
+    if (a < 0 && imm >= 0)
     {
         return 0;
     }
+    if (a >= 0 && imm < 0)
+    {
+        return 1;
+    }
+    if (a >= 0 && imm >= 0)
+    {
+        return a < imm ? 1 : 0;
+    }
+
+    return a < imm ? 1 : 0;
 }
 
 Register ALU::andi(Register a, Register imm) { return a & imm; }
@@ -115,12 +116,18 @@ Register ALU::not_op(Register a) { return ~a; }
 
 Register ALU::slli(Register a, Register shift) { return a << (int)shift; }
 
-Register ALU::srli(Register a, Register shift) { return a >> (int)shift; }
+Register ALU::srli(Register a, Register shift)
+{
+    unsigned temp3 = (signed)a;
+    return temp3 >> (int)(shift);
+}
 
 Register ALU::srai(Register a, Register shift)
 {
-    Register mask = 1 << 31;
-    return (a >> (int)shift) | (mask >> (int)shift);
+    // Register mask = 1 << 31; Not needed since auto sign extension; also, don't know size of ints
+    Register shiftVal = shift & (0x1F);
+    std::cout << "Shifting: " << a << "by " << (int)shiftVal << std::endl;
+    return (a >> (int)shiftVal); // | (mask >> (int)shift);
 }
 
 Register ALU::sll(Register a, Register b) { return a << (int)b; }
@@ -213,12 +220,19 @@ void ALU::processIType(Instruction &I, MachineState &MS)
                        slli(MS.getRegister(I.get_rs1()), I.get_immediate()));
         break;
     case 0x5: // SRLI or SRAI (Shift Right Logical Immediate or Arithmetic)
-        if (I.get_funct7() == 0x00)
-            MS.setRegister(I.get_rd(),
-                           srli(MS.getRegister(I.get_rs1()), I.get_immediate()));
-        else if (I.get_funct7() == 0x20)
+        if ((I.get_immediate() & 1 << 10) != 0)
+        {
             MS.setRegister(I.get_rd(),
                            srai(MS.getRegister(I.get_rs1()), I.get_immediate()));
+
+            std::cout << "Executing srai" << std::endl;
+        }
+        else
+        {
+            MS.setRegister(I.get_rd(),
+                           srli(MS.getRegister(I.get_rs1()), I.get_immediate()));
+            std::cout << "Executing srli" << std::endl;
+        }
         break;
     // Handle other I-type instructions...
     default:
