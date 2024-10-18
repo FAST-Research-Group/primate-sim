@@ -71,31 +71,16 @@ Register ALU::addi(Register a, Register imm) { return a + imm; }
 
 Register ALU::sub(Register a, Register b) { return a - b; }
 
-Register ALU::lui(Register imm) { return imm << 12; }
+Register ALU::lui(Register imm) { return imm; }
 
 Register ALU::slti(Register a, Register imm) { return a < imm ? 1 : 0; }
 
 Register ALU::sltiu(Register a, Register imm)
 {
+    unsigned temp1 = (signed)a;
+    unsigned temp2 = (signed)imm;
+    return temp1 < temp2 ? 1 : 0;
     // scuffed logic but should work as intended
-    if (a < 0 && imm < 0)
-    {
-        return a > imm ? 1 : 0;
-    }
-    if (a < 0 && imm >= 0)
-    {
-        return 0;
-    }
-    if (a >= 0 && imm < 0)
-    {
-        return 1;
-    }
-    if (a >= 0 && imm >= 0)
-    {
-        return a < imm ? 1 : 0;
-    }
-
-    return a < imm ? 1 : 0;
 }
 
 Register ALU::andi(Register a, Register imm) { return a & imm; }
@@ -140,17 +125,38 @@ Register ALU::sra(Register a, Register b)
     return (a >> (int)b) | (mask >> (int)b);
 }
 
+Register ALU::slt(Register a, Register b)
+{
+    return a < b ? 1 : 0;
+}
+
+Register ALU::sltu(Register a, Register b)
+{
+    unsigned temp1 = (signed)a;
+    unsigned temp2 = (signed)b;
+    return temp1 < temp2 ? 1 : 0;
+}
+
 void ALU::processRType(Instruction &I, MachineState &MS)
 {
     switch (I.get_funct3())
     {
     case 0x0: // ADD or SUB
         if (I.get_funct7() == 0x00)
+        {
             MS.setRegister(I.get_rd(), add(MS.getRegister(I.get_rs1()),
                                            MS.getRegister(I.get_rs2())));
+            std::cout << "Adding: " << MS.getRegister(I.get_rs1()) << " + " << MS.getRegister(I.get_rs2()) << " to " << I.get_rd() << std::endl;
+        }
         else if (I.get_funct7() == 0x20)
             MS.setRegister(I.get_rd(), sub(MS.getRegister(I.get_rs1()),
                                            MS.getRegister(I.get_rs2())));
+        break;
+    case 0x2: // SLT
+        MS.setRegister(I.get_rd(), slt(MS.getRegister(I.get_rs1()), MS.getRegister(I.get_rs2())));
+        break;
+    case 0x3: // SLTU
+        MS.setRegister(I.get_rd(), sltu(MS.getRegister(I.get_rs1()), MS.getRegister(I.get_rs2())));
         break;
     case 0x7: // AND
         MS.setRegister(I.get_rd(), and_op(MS.getRegister(I.get_rs1()),

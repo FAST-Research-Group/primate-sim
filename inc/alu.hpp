@@ -45,6 +45,8 @@ public:
   // Logical operations
   Register slti(Register a, Register imm);
   Register sltiu(Register a, Register imm);
+  Register slt(Register a, Register b);
+  Register sltu(Register a, Register b);
   Register andi(Register a, Register imm);
   Register ori(Register a, Register imm);
   Register xori(Register a, Register imm);

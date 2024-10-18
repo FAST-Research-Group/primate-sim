@@ -87,7 +87,7 @@ public:
             break;
         case U:
             this->rd = (raw_instruction >> 7) & ((1 << 5) - 1);
-            this->immediate = ((raw_instruction >> 12) << 12);
+            this->immediate = raw_instruction & (~0xFFF);
             break;
         case R:
             this->rd = (raw_instruction >> 7) & ((1 << 5) - 1);
