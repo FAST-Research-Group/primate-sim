@@ -6,11 +6,13 @@
 #include <cstdint>
 #include <unordered_set>
 #include <memory>
-#include "PrimateConfig.hpp"
+// #include "PrimateConfig.hpp"
 #include "MachineState.hpp"
 #include "alu.hpp"
 #include "Instruction.hpp"
 #include "FunctionalUnit.hpp"
+#include "insert.hpp"
+
 // using namespace std removed; it was still here
 
 // stringToBinary function is used since issues with stoi staying in 32 bits
@@ -184,6 +186,7 @@ int main(int argc, char *argv[])
   {
     // This needs to change in order to accomodate between green and blue functional unit once wrapper class is written
     allUnits.push_back(std::move(std::unique_ptr<FunctionalUnit>(new ALU())));
+    allUnits.push_back(std::move(std::unique_ptr<FunctionalUnit>(new InsertUnit(filePath_config))));
   }
 
   // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
