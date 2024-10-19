@@ -62,4 +62,13 @@ void BFU::handleInputRead(Instruction &I, MachineState &MS) {
     MS.inputStream << temp;
 }
 
-void handleOutputEmiti(Instruction &I, MachineState &MS) {}
+void handleOutputEmiti(Instruction &I, MachineState &MS) {
+    int rd = I.get_rd();
+    int imm = I.get_immediate();
+    int mask = 0;
+    for(int i = 1; i < imm; i++) {
+        mask += 1 * i;
+    }
+    int holdInput = (int)MS.getRegister(rd) & mask;
+    printf("%d", holdInput);
+}
