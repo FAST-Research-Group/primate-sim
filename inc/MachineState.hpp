@@ -2,6 +2,7 @@
 #define MACHINESTATE_H
 
 #include "Register.hpp"
+#include <sstream>
 #include <ostream>
 #include <cstdint>
 #include <vector>
@@ -14,6 +15,7 @@ struct MachineState
 
   uint64_t pc;
   bool running;
+  std::stringstream inputStream;
 
   void halt();
 
