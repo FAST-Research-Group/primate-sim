@@ -2,18 +2,19 @@
 #include <iostream>
 
 // Constructor
-BFU::BFU() {}
+BFU::BFU(bool regFileCon, unsigned slot) : FunctionalUnit(regFileCon, slot), inputStream("input.txt") {
+}
 
 // Destructor
 BFU::~BFU() {}
 
-void BFU::processInstruction(Instruction &I, MachineState &MS) {
+void BFU::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS) {
     switch(I.get_opcode()) {
     case BFU_INPUT:
-        handleInput(I, MS);
+        handleInput(I, CMS, NMS);
         break;
     case BFU_OUTPUT:
-        handleOutputEmiti(I, MS);
+        handleOutputEmiti(I, CMS, NMS);
         break;
     default:
         throw std::string("Unknown custom intruction.");
@@ -21,10 +22,10 @@ void BFU::processInstruction(Instruction &I, MachineState &MS) {
     }
 }
 
-void BFU::handleInput(Instruction &I, MachineState &MS) {
+void BFU::handleInput(Instruction &I, MachineState &CMS, MachineState &NMS) {
     switch(I.get_funct3()) {
     case 1:
-        handleInputRead(I, MS);
+        handleInputRead(I, CMS, NMS);
         break;
     case 2:
         // handleInputSeek not implemented
@@ -48,27 +49,25 @@ void BFU::handleInput(Instruction &I, MachineState &MS) {
     }
 }
 
-void BFU::handleInputRead(Instruction &I, MachineState &MS) {
+void BFU::handleInputRead(Instruction &I, MachineState &CMS, MachineState &NMS) {
     int rd = I.get_rd();
     int imm = I.get_immediate();
     int holdInput = 0;
-    std::string temp = MS.inputStream.str();
+    char isLast, hasData;
+    char seperatorTrash;
+    std::string temp;
+    inputStream >> isLast >> seperatorTrash >> hasData >> seperatorTrash >> temp;
     for(int i = 0; i < imm; ++i)
         holdInput += (temp[i] - '0') << i;
-    MS.setRegister(rd, holdInput);
-    temp.erase(0, imm);
-    MS.inputStream.str("");
-    MS.inputStream.clear();
-    MS.inputStream << temp;
+    NMS.setRegister(rd, holdInput);
 }
 
-void handleOutputEmiti(Instruction &I, MachineState &MS) {
+void BFU::handleOutputEmiti(Instruction &I, MachineState &CMS, MachineState& NMS) {
     int rd = I.get_rd();
     int imm = I.get_immediate();
     int mask = 0;
     for(int i = 1; i < imm; i++) {
         mask += 1 * i;
     }
-    int holdInput = (int)MS.getRegister(rd) & mask;
-    printf("%d", holdInput);
+    std::cout << (CMS.getRegister(rd) & mask);
 }

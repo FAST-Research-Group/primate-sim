@@ -175,22 +175,22 @@ int main(int argc, char *argv[])
   // reading an parsing done here (bug will appear since "consts.hpp" has different dimensions for VLIW than my hardcoded main);
   std::vector<std::vector<Instruction>> instructions = read(filePath_instruction, primateCfg);
 
-  std::vector<std::unique_ptr<FunctionalUnit>> allUnits; // IDK why this works, but stack overflow says it does
+  std::vector<std::unique_ptr<FunctionalUnit>> allUnits; 
 
   for (int i = 0; i < primateCfg.num_branch; i++)
   {
-    allUnits.push_back(std::move(std::unique_ptr<FunctionalUnit>(new BranchUnit())));
+    allUnits.push_back(std::move(std::unique_ptr<FunctionalUnit>(new BranchUnit(false, primateCfg.instruction_width-1))));
   }
 
   for (int i = 0; i < primateCfg.num_merged; i++)
   {
     // This needs to change in order to accomodate between green and blue functional unit once wrapper class is written
-    allUnits.push_back(std::move(std::unique_ptr<FunctionalUnit>(new ALU())));
-    allUnits.push_back(std::move(std::unique_ptr<FunctionalUnit>(new InsertUnit(filePath_config))));
+    allUnits.push_back(std::move(std::unique_ptr<FunctionalUnit>(new ALU(false, primateCfg.instruction_width-1-(i*3)))));
+    allUnits.push_back(std::move(std::unique_ptr<FunctionalUnit>(new InsertUnit(filePath_config, true, primateCfg.instruction_width-1-(i*3)))));
   }
 
   // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
-  MachineState CurrentState(0), NextState(0);
+  MachineState CurrentState(0, primateCfg), NextState(0, primateCfg);
 
   // Initialize Functional Units over here
 
@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < allUnits.size(); i++)
     {
       Instruction &temp_instr = instructions.at(CurrentState.getPC()).at(i);
-      allUnits.at(i)->processInstruction(temp_instr, NextState);
+      allUnits.at(i)->processInstruction(temp_instr, CurrentState, NextState);
     }
     CurrentState = NextState;
     // processInstruction(instructions, Machine0);

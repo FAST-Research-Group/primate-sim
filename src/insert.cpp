@@ -1,11 +1,11 @@
 #include <stdint.h>
 #include "insert.hpp"
 
-InsertUnit::InsertUnit(std::string fpath) : primateCFG(fpath) {}
+InsertUnit::InsertUnit(std::string fpath, bool reg, unsigned slot) : primateCFG(fpath), FunctionalUnit(reg, slot) {}
 
 InsertUnit::~InsertUnit() {}
 
-void InsertUnit::processInstruction(Instruction &I, MachineState &MS)
+void InsertUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
     int destination = I.get_rd();
     int source = I.get_rs1();
@@ -32,7 +32,7 @@ void InsertUnit::processInstruction(Instruction &I, MachineState &MS)
     int shift = immediate & ((1 << clog_mode) - 1);
 
     Register result = (source >> shift) & mask;
-    MS.setRegister(destination, result);
+    NMS.setRegister(destination, result);
 
     return;
 }

@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -227,7 +228,7 @@ public:
         }
       }
     }
-    instruction_width = num_BFU + num_branch + num_merged;
+    instruction_width = num_BFU + num_branch + (num_merged * 3);
   }
 
   void get_data()

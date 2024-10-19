@@ -6,9 +6,8 @@ class BranchUnit : public FunctionalUnit
 {
 private:
   uint64_t pc;
-
 public:
-  BranchUnit();
+  BranchUnit(bool, unsigned);
   virtual ~BranchUnit();
   uint64_t j(uint64_t imm);
   uint64_t jr(uint64_t imm);
@@ -19,7 +18,7 @@ public:
   uint64_t bltu(uint64_t a, uint64_t b);
   uint64_t bgeu(uint64_t a, uint64_t b);
   uint64_t end();
-  void processInstruction(Instruction &I, MachineState &MS) override;
+  void processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS) override;
 };
 
 class ALU : public FunctionalUnit
@@ -33,7 +32,7 @@ private:
   }
 
 public:
-  ALU();
+  ALU(bool, unsigned);
   virtual ~ALU();
 
   // Arithmetic operations
@@ -64,10 +63,10 @@ public:
   Register srl(Register a, Register b);
   Register sra(Register a, Register b);
 
-  void processRType(Instruction &I, MachineState &MS);
-  void processIType(Instruction &I, MachineState &MS);
-  void processSType(Instruction &I, MachineState &MS);
-  void processBType(Instruction &I, MachineState &MS);
-  void processUType(Instruction &I, MachineState &MS);
-  virtual void processInstruction(Instruction &I, MachineState &MS) override;
+  void processRType(Instruction &I, MachineState &CMS, MachineState &NMS);
+  void processIType(Instruction &I, MachineState &CMS, MachineState &NMS);
+  void processSType(Instruction &I, MachineState &CMS, MachineState &NMS);
+  void processBType(Instruction &I, MachineState &CMS, MachineState &NMS);
+  void processUType(Instruction &I, MachineState &CMS, MachineState &NMS);
+  virtual void processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS) override;
 };

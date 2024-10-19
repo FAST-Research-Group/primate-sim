@@ -2,6 +2,7 @@
 #define BLUE_FUNCTIONAL_UNIT_HPP
 
 #include "FunctionalUnit.hpp"
+#include <fstream>
 
 #define BFU_INPUT 11
 #define BFU_OUTPUT 1
@@ -10,8 +11,9 @@
  * @brief This class controls the code for the custom instructions in primate
  */
 class BFU : public FunctionalUnit {
+  std::ifstream  inputStream;
   public:
-    BFU();
+    BFU(bool, unsigned);
     virtual ~BFU();
 
     /**
@@ -19,12 +21,12 @@ class BFU : public FunctionalUnit {
      * @param I The current instruction
      * @param MS The current state of the machine
      */
-    void processInstruction(Instruction &I, MachineState &MS) override;
+    void processInstruction(Instruction& I, MachineState &CMS, MachineState &NMS) override;
 
   private:
-    void handleInput(Instruction &I, MachineState &MS);
-    void handleInputRead(Instruction &I, MachineState &MS);
-    void handleOutputEmiti(Instruction &I, MachineState &MS);
+    void handleInput(Instruction& I, MachineState &CMS, MachineState &NMS);
+    void handleInputRead(Instruction& I, MachineState &CMS, MachineState &NMS);
+    void handleOutputEmiti(Instruction& I, MachineState &CMS, MachineState &NMS);
 
     /* Not implimented
 

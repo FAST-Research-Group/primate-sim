@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "alu.hpp"
 
-BranchUnit::BranchUnit() { pc = 0; }
+BranchUnit::BranchUnit(bool reg, unsigned slot): FunctionalUnit(reg, slot) { pc = 0; }
 
 BranchUnit::~BranchUnit() {}
 
@@ -23,8 +23,10 @@ uint64_t BranchUnit::bgeu(uint64_t a, uint64_t b) { return a >= b ? 1 : 0; }
 
 uint64_t BranchUnit::end() { return 0; }
 
-void BranchUnit::processInstruction(Instruction &I, MachineState &MS)
+void BranchUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
+    Register rs1 = CMS.getInterconnectValue(I.get_rs1());
+    Register rs2 = CMS.getInterconnectValue(I.get_rs2());
     switch (I.get_type())
     {
     case Instruction::type::J:
@@ -33,35 +35,35 @@ void BranchUnit::processInstruction(Instruction &I, MachineState &MS)
                   << std::dec;
         if (I.get_immediate() == -1)
         {
-            MS.halt();
+            NMS.halt();
             break;
         }
         // FIXME: Might be wrong.
-        MS.setPC(MS.getPC() + I.get_immediate());
+        NMS.setPC(CMS.getPC() + I.get_immediate());
         break;
     }
     case Instruction::type::B:
         switch (I.get_funct3())
         {
         case 0:
-            (I.get_rs1() == I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 1);
+            (I.get_rs1() == I.get_rs2()) ? NMS.setPC(CMS.getPC() + I.get_immediate()) : NMS.setPC(CMS.getPC() + 1);
         case 1:
-            (I.get_rs1() != I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 1);
+            (I.get_rs1() != I.get_rs2()) ? NMS.setPC(CMS.getPC() + I.get_immediate()) : NMS.setPC(CMS.getPC() + 1);
         case 4:
-            (I.get_rs1() < I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 1);
+            (I.get_rs1() < I.get_rs2()) ? NMS.setPC(CMS.getPC() + I.get_immediate()) : NMS.setPC(CMS.getPC() + 1);
         case 6:
-            (((unsigned)I.get_rs1()) < ((unsigned)I.get_rs2())) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 1);
+            (((unsigned)I.get_rs1()) < ((unsigned)I.get_rs2())) ? NMS.setPC(CMS.getPC() + I.get_immediate()) : NMS.setPC(CMS.getPC() + 1);
         case 5:
-            (I.get_rs1() >= I.get_rs2()) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 1);
+            (I.get_rs1() >= I.get_rs2()) ? NMS.setPC(CMS.getPC() + I.get_immediate()) : NMS.setPC(CMS.getPC() + 1);
         case 7:
-            (((unsigned)I.get_rs1()) >= ((unsigned)I.get_rs2())) ? MS.setPC(MS.getPC() + I.get_immediate()) : MS.setPC(MS.getPC() + 1);
+            (((unsigned)I.get_rs1()) >= ((unsigned)I.get_rs2())) ? NMS.setPC(CMS.getPC() + I.get_immediate()) : NMS.setPC(CMS.getPC() + 1);
         }
     default:
-        MS.setPC(MS.getPC() + 1);
+        NMS.setPC(CMS.getPC() + 1);
     }
 }
 
-ALU::ALU() { pc = 0; }
+ALU::ALU(bool reg, unsigned slot): FunctionalUnit(reg, slot) { pc = 0; }
 
 ALU::~ALU() {}
 
@@ -139,52 +141,55 @@ Register ALU::sltu(Register a, Register b)
     return temp1 < temp2 ? 1 : 0;
 }
 
-void ALU::processRType(Instruction &I, MachineState &MS)
+void ALU::processRType(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
+    Register op1, op2;
+    Register res;
+    // if not connect to regfile we should 
+    // goto interconnect
+    if(this->isConnectedToRegisterFile()) {
+        op1 = CMS.getRegister(I.get_rs1());
+        op2 = CMS.getRegister(I.get_rs2());
+    }
+    else {
+        op1 = CMS.getInterconnectValue(I.get_rs1());
+        op2 = CMS.getInterconnectValue(I.get_rs2());
+    }
+
     switch (I.get_funct3())
     {
     case 0x0: // ADD or SUB
         if (I.get_funct7() == 0x00)
         {
-            MS.setRegister(I.get_rd(), add(MS.getRegister(I.get_rs1()),
-                                           MS.getRegister(I.get_rs2())));
+            res = add(op1, op2);
             // std::cout << "Adding: " << MS.getRegister(I.get_rs1()) << " + " << MS.getRegister(I.get_rs2()) << " to " << I.get_rd() << std::endl;
         }
         else if (I.get_funct7() == 0x20)
-            MS.setRegister(I.get_rd(), sub(MS.getRegister(I.get_rs1()),
-                                           MS.getRegister(I.get_rs2())));
+            res = sub(op1, op2);
         break;
     case 0x2: // SLT
-        MS.setRegister(I.get_rd(), slt(MS.getRegister(I.get_rs1()), MS.getRegister(I.get_rs2())));
+        res = slt(op1, op2);
         break;
     case 0x3: // SLTU
-        MS.setRegister(I.get_rd(), sltu(MS.getRegister(I.get_rs1()), MS.getRegister(I.get_rs2())));
+        res = sltu(op1, op2);
         break;
     case 0x7: // AND
-        MS.setRegister(I.get_rd(), and_op(MS.getRegister(I.get_rs1()),
-                                          MS.getRegister(I.get_rs2())));
+        res = and_op(op1, op2);
         break;
     case 0x6: // OR
-        MS.setRegister(I.get_rd(), or_op(MS.getRegister(I.get_rs1()),
-                                         MS.getRegister(I.get_rs2())));
+        res = or_op(op1, op2);
         break;
     case 0x4: // XOR
-        MS.setRegister(I.get_rd(), xor_op(MS.getRegister(I.get_rs1()),
-                                          MS.getRegister(I.get_rs2())));
+        res = xor_op(op1, op2);
         break;
     case 0x1: // SLL (Shift Left Logical)
-        MS.setRegister(I.get_rd(), slli(MS.getRegister(I.get_rs1()),
-                                        MS.getRegister(I.get_rs2()) & 0x1F));
+        res = slli(op1, op2);
         break;
     case 0x5: // SRL or SRA (Shift Right Logical or Arithmetic)
         if (I.get_funct7() == 0x00)
-            MS.setRegister(I.get_rd(),
-                           srli(MS.getRegister(I.get_rs1()),
-                                MS.getRegister(I.get_rs2()) & 0x1F));
+            res = srli(op1, op2 & 0x1F);
         else if (I.get_funct7() == 0x20)
-            MS.setRegister(I.get_rd(),
-                           srai(MS.getRegister(I.get_rs1()),
-                                MS.getRegister(I.get_rs2()) & 0x1F));
+            res = srai(op1, op2 & 0x1F);
         break;
     // Handle other R-type instructions...
     default:
@@ -192,53 +197,58 @@ void ALU::processRType(Instruction &I, MachineState &MS)
                   << std::endl;
         break;
     }
+
+    CMS.setInterconnectValue(slotIdx, res);
+    if(this->isConnectedToRegisterFile()) {
+        NMS.setRegister(I.get_rd(), res);
+    }
 }
 
 // Process I-type instructions
-void ALU::processIType(Instruction &I, MachineState &MS)
+void ALU::processIType(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
+    Register op1;
+    Register res;
+    if(this->isConnectedToRegisterFile()) {
+        op1 = CMS.getRegister(I.get_rs1());
+    }
+    else {
+        op1 = CMS.getInterconnectValue(I.get_rs1());
+    }
+
     switch (I.get_funct3())
     {
     case 0x0: // ADDI
-        MS.setRegister(I.get_rd(),
-                       addi(MS.getRegister(I.get_rs1()), I.get_immediate()));
+        res = addi(op1, I.get_immediate());
         break;
     case 0x2: // SLTI
-        MS.setRegister(I.get_rd(),
-                       slti(MS.getRegister(I.get_rs1()), I.get_immediate()));
+        res = slti(op1, I.get_immediate());
         break;
     case 0x3: // SLTIU
-        MS.setRegister(
-            I.get_rd(), sltiu(MS.getRegister(I.get_rs1()), I.get_immediate()));
+        res = sltiu(op1, I.get_immediate());
         break;
     case 0x7: // ANDI
-        MS.setRegister(I.get_rd(),
-                       andi(MS.getRegister(I.get_rs1()), I.get_immediate()));
+        res = andi(op1, I.get_immediate());
         break;
     case 0x6: // ORI
-        MS.setRegister(I.get_rd(),
-                       ori(MS.getRegister(I.get_rs1()), I.get_immediate()));
+        res = ori(op1, I.get_immediate());
         break;
     case 0x4: // XORI
-        MS.setRegister(I.get_rd(),
-                       xori(MS.getRegister(I.get_rs1()), I.get_immediate()));
+        res = xori(op1, I.get_immediate());
         break;
     case 0x1: // SLLI (Shift Left Logical Immediate)
-        MS.setRegister(I.get_rd(),
-                       slli(MS.getRegister(I.get_rs1()), I.get_immediate()));
+        res = slli(op1, I.get_immediate());
         break;
     case 0x5: // SRLI or SRAI (Shift Right Logical Immediate or Arithmetic)
         if ((I.get_immediate() & 1 << 10) != 0)
         {
-            MS.setRegister(I.get_rd(),
-                           srai(MS.getRegister(I.get_rs1()), I.get_immediate()));
+            res = srai(op1, I.get_immediate());
 
             std::cout << "Executing srai" << std::endl;
         }
         else
         {
-            MS.setRegister(I.get_rd(),
-                           srli(MS.getRegister(I.get_rs1()), I.get_immediate()));
+            res = srli(op1, I.get_immediate());
             std::cout << "Executing srli" << std::endl;
         }
         break;
@@ -248,23 +258,42 @@ void ALU::processIType(Instruction &I, MachineState &MS)
                   << std::endl;
         break;
     }
+
+    CMS.setInterconnectValue(slotIdx, res);
+    if(this->isConnectedToRegisterFile()) {
+        NMS.setRegister(I.get_rd(), res);
+    }
 }
 
 // Process S-type (Store) instructions
-void ALU::processSType(Instruction &I, MachineState &MS)
+void ALU::processSType(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
-    Register address = MS.getRegister(I.get_rs1()) + I.get_immediate();
+    Register op1, op2;
+    Register res;
+    // if not connect to regfile we should 
+    // goto interconnect
+    if(this->isConnectedToRegisterFile()) {
+        op1 = CMS.getRegister(I.get_rs1());
+        op2 = CMS.getRegister(I.get_rs2());
+    }
+    else {
+        op1 = CMS.getInterconnectValue(I.get_rs1());
+        op2 = CMS.getInterconnectValue(I.get_rs2());
+    }
+
+
+    Register address = op1 + I.get_immediate();
     switch (I.get_funct3())
     {
     case 0x0: // SB (Store Byte) - Invalid Instruction
-        MS.setMem((int)address, MS.getRegister(I.get_rs2()) & 0xFF, 1);
+        NMS.setMem((int)address, op2 & 0xFF, 1);
         break;
     case 0x1: // SH (Store Halfword) - Invalid Instruction
-        MS.setMem((int)address, MS.getRegister(I.get_rs2()) & 0xFFFF, 2);
+        NMS.setMem((int)address, op2, 2);
         break;
     case 0x2: // SW (Store Word)
-        std::cout << MS.getRegister(I.get_rs2()) << " " << I.get_immediate() << " " << address << std::endl;
-        MS.setMem((int)address, MS.getRegister(I.get_rs2()), 4);
+        std::cout << op2 << " " << I.get_immediate() << " " << address << std::endl;
+        NMS.setMem((int)address, op2, 4);
         break;
     // Handle other S-type instructions...
     default:
@@ -272,18 +301,23 @@ void ALU::processSType(Instruction &I, MachineState &MS)
                   << std::endl;
         break;
     }
+    CMS.setInterconnectValue(slotIdx, res);
+    if(this->isConnectedToRegisterFile()) {
+        NMS.setRegister(I.get_rd(), res);
+    }
 }
 
 // Process U-type (Upper Immediate) instructions
-void ALU::processUType(Instruction &I, MachineState &MS)
+void ALU::processUType(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
+    Register res;
     switch (I.get_opcode())
     {
     case 0x37: // LUI (Load Upper Immediate)
-        MS.setRegister(I.get_rd(), lui(I.get_immediate()));
+        res = lui(I.get_immediate());
         break;
     case 0x17: // AUIPC (Add Upper Immediate to PC)
-        MS.setRegister(I.get_rd(), MS.getPC() + I.get_immediate());
+        res = CMS.getPC() + I.get_immediate();
         break;
     // Handle other U-type instructions...
     default:
@@ -291,32 +325,36 @@ void ALU::processUType(Instruction &I, MachineState &MS)
                   << std::endl;
         break;
     }
+    CMS.setInterconnectValue(slotIdx, res);
+    if(this->isConnectedToRegisterFile()) {
+        NMS.setRegister(I.get_rd(), res);
+    }
 }
 
 // Process the instruction based on its opcode
-void ALU::processInstruction(Instruction &I, MachineState &MS)
+void ALU::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
     switch (I.get_opcode())
     {
     case 0x33: // R-type instructions
-        processRType(I, MS);
+        processRType(I, CMS, NMS);
         break;
     case 0x13: // I-type instructions
-        processIType(I, MS);
+        processIType(I, CMS, NMS);
         break;
     case 0x03: // I-type load instructions (for load, use the same function but
                // add a switch case for OPCODE_LOAD)
         // Handle load instruction here
         break;
     case 0x23: // S-type instructions (store)
-        processSType(I, MS);
+        processSType(I, CMS, NMS);
         break;
     case 0x63: // B-type instructions (branch)
         // processBType(I, MS); brokie
         break;
     case 0x37: // U-type instructions (LUI)
     case 0x17: // U-type instructions (AUIPC)
-        processUType(I, MS);
+        processUType(I, CMS, NMS);
         break;
     case 0x6F: // J-type instructions (JAL)
         // Add processing for JAL

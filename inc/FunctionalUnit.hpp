@@ -6,10 +6,15 @@
 
 class FunctionalUnit
 {
+  bool consumeRegfile;
 public:
-  virtual ~FunctionalUnit() {};
+  unsigned slotIdx;
+  FunctionalUnit(bool cRF, unsigned SI) : consumeRegfile(cRF), slotIdx(SI) {}
+  virtual ~FunctionalUnit() {}
 
-  virtual void processInstruction(Instruction &I, MachineState &MS)= 0;
+  bool isConnectedToRegisterFile() {return consumeRegfile;}
+
+  virtual void processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)= 0;
 };
 
 #endif
