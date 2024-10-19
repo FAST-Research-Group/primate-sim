@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <unordered_set>
 #include <memory>
-#include "PrimateConfig.hpp"
+// #include "PrimateConfig.hpp"
 #include "MachineState.hpp"
 #include "alu.hpp"
 #include "Instruction.hpp"
