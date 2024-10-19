@@ -8,12 +8,15 @@
  */
 
 #include <memory>
+#include <cstdarg>
 
 #include "IOUnit.hpp"
 #include "FunctionalUnit.hpp"
 
-std::unique_ptr<FunctionalUnit> createBFU(std::string name) {
+std::unique_ptr<FunctionalUnit> createBFU(std::string name...) {
+    va_list args;
+    va_start(args, name);
     if(name == "io") {
-        return std::make_unique<IOUnit>
+        return std::make_unique<IOUnit>(va_arg(args, bool), va_arg(args, unsigned));
     }
 }

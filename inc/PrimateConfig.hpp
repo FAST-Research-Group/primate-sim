@@ -6,6 +6,9 @@
 #include <string>
 #include <cstdint>
 #include <cassert>
+#include <algorithm> 
+#include <cctype>
+#include <locale>
 
 class PrimateConfig
 {
@@ -31,6 +34,7 @@ public:
   std::vector<int> Dst_Encode;
   std::vector<std::pair<int, int>> Dst_En_Encode;
   std::vector<int> Dst_En;
+  std::vector<std::string> BFUNames;
   int Num_Dst_Pos = 0;
   int Num_Wb_Ens = 0;
   int Num_Threads = 0;
@@ -45,12 +49,62 @@ public:
   int num_branch = 1;
   int instruction_width = 0;
 
+  // trim from start (in place)
+  inline void ltrim(std::string &s) {
+      s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+          return !std::isspace(ch);
+      }));
+  }
+
+  // trim from end (in place)
+  inline void rtrim(std::string &s) {
+      s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+          return !std::isspace(ch);
+      }).base(), s.end());
+  }
+
+  // parse the bfu list and populated the BFUNames list
+  void parseBFULists(std::string bfuListsPath) {
+    enum ParserState {IN_SCOPE, OUT_SCOPE};
+    std::ifstream inputFile(bfuListsPath);
+    std::string line;
+
+    if (!inputFile.is_open())
+    {
+      std::cerr << "Error opening bfu_lists config file at: " << bfuListsPath << "!!!!" << std::endl;
+    }
+    BFUNames.push_back("io");
+    ParserState parserState = OUT_SCOPE;
+    while (std::getline(inputFile, line)) {
+      ltrim(line);
+      rtrim(line);
+      switch(parserState) {
+        case IN_SCOPE: {
+          if(line == "}") {
+            parserState = OUT_SCOPE;
+          }
+          break;
+        }
+        case OUT_SCOPE: {
+          if(line == "{") {
+            parserState = IN_SCOPE;
+          }
+          else if(line.size() != 0) {
+            BFUNames.push_back(line);
+          }
+        }
+      }
+    }
+  }
+
   // ctor to read file
-  PrimateConfig(std::string fpath)
+  PrimateConfig(std::string fpath, std::string bfuListsPath)
   {
     // std::cout << "Opening config file at: " << fpath << "\n";
     std::ifstream inputFile(fpath);
     std::string line;
+
+    parseBFULists(bfuListsPath);
 
     if (!inputFile.is_open())
     {
@@ -301,4 +355,9 @@ public:
     std::cout << "NUM_BRANCH: " << num_branch << std::endl;
     std::cout << "INSTRUCTION_WIDTH: " << instruction_width << std::endl;
   }
+
+  std::vector<std::string> getBFUNames() {
+    return BFUNames;
+  }
+
 };

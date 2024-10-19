@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "insert.hpp"
 
-InsertUnit::InsertUnit(std::string fpath, bool reg, unsigned slot) : primateCFG(fpath), FunctionalUnit(reg, slot) {}
+InsertUnit::InsertUnit(PrimateConfig cfg, bool reg, unsigned slot) : primateCFG(cfg), FunctionalUnit(reg, slot) {}
 
 InsertUnit::~InsertUnit() {}
 

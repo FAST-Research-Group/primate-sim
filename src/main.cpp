@@ -162,13 +162,14 @@ int main(int argc, char *argv[])
   // error if wrong amount of arguments arguments
   if (argc != 3)
   {
-    std::cerr << "Usage: " << argv[0] << " <path to program.bin> <path to primate.cfg>" << std::endl;
+    std::cerr << "Usage: " << argv[0] << " <path to program.bin> <path to primate.cfg> <path to BFUListsPath>" << std::endl;
     return 1;
   }
 
   std::string filePath_instruction = argv[1];
   std::string filePath_config = argv[2];
-  PrimateConfig primateCfg(filePath_config);
+  std::string BFUListsPath = argv[3];
+  PrimateConfig primateCfg(filePath_config, BFUListsPath);
 
   // primateCfg.get_data();
   std::cout << "done with config reading\n";
@@ -192,9 +193,8 @@ int main(int argc, char *argv[])
         assert(false && "merged units not implemented yet");
       case PrimateConfig::FunctionalUnitType::EXTRACT:
       case PrimateConfig::FunctionalUnitType::INSERT:
-      
       default:
-        assert(false && "unknown functional unit type (if you added a new unit add it to main.cpp)")
+        assert(false && "unknown functional unit type (if you added a new unit add it to main.cpp)");
     }
     slotIdx++;
   }
