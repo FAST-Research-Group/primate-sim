@@ -1,20 +1,21 @@
 #ifndef BLUE_FUNCTIONAL_UNIT_HPP
 #define BLUE_FUNCTIONAL_UNIT_HPP
 
+#include "MachineState.hpp"
 #include "FunctionalUnit.hpp"
 #include <fstream>
 
-#define BFU_INPUT 11
-#define BFU_OUTPUT 1
+#define IO_UNIT_INPUT 11
+#define IO_UNIT_OUTPUT 1
 
 /**
  * @brief This class controls the code for the custom instructions in primate
  */
-class BFU : public FunctionalUnit {
+class IOUnit : public FunctionalUnit {
   std::ifstream  inputStream;
   public:
-    BFU(bool, unsigned);
-    virtual ~BFU();
+    IOUnit(bool, unsigned);
+    virtual ~IOUnit();
 
     /**
      * @brief This handles the main process to run custom instructions

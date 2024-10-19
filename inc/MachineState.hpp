@@ -1,14 +1,15 @@
 #ifndef MACHINESTATE_H
 #define MACHINESTATE_H
 
-#include "PrimateConfig.hpp"
-#include "Register.hpp"
 #include <sstream>
 #include <ostream>
 #include <cstdint>
 #include <vector>
 #include <map>
 #include <utility>
+
+#include "PrimateConfig.hpp"
+#include "Register.hpp"
 
 struct MachineState
 {

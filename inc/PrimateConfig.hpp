@@ -5,10 +5,20 @@
 #include <sstream>
 #include <string>
 #include <cstdint>
+#include <cassert>
 
 class PrimateConfig
 {
 public:
+  enum FunctionalUnitType {
+    BFU,
+    GFU,
+    MERGED,
+    BRANCH,
+    INSERT,
+    EXTRACT
+  };
+  std::vector<FunctionalUnitType> instrLayout;
   int Reg_Width = 0; // handled in parsing
   std::vector<int> Reg_Block_Width;
   int Num_Regblocks = 0;
@@ -26,6 +36,7 @@ public:
   int Num_Threads = 0;
   int Num_Regs = 0;
   int num_merged = 0;
+  int num_ALU = 0;
   int num_BFU = 0;
   int IP_Width = 0;
   int Imm_Width = 0;
@@ -53,182 +64,170 @@ public:
       std::istringstream iss(line);
       std::string word;
       std::string word1;
-      while (iss >> word)
-      {
-
-        if (word.length() >= 7)
-        {
+      while (iss >> word) {
+        if (word.length() >= 7) {
           word1 = word.substr(0, 7);
-          if (word1.compare("DST_EN=") == 0)
-          {
+          if (word1.compare("DST_EN=") == 0) {
 
             // std::cout << "Initial word: " << word << std::endl;
             // std::cout << "Attempting to convert: " << word.substr(7) << std::endl;
             Dst_En.push_back(stoi(word.substr(7), 0, 10));
-            while (iss >> word)
-            {
+            while (iss >> word) {
               Dst_En.push_back(stoi(word));
             }
           }
         }
 
-        if (word.length() >= 8)
-        {
+        if (word.length() >= 8) {
           word1 = word.substr(0, 8);
-          if (word1.compare("SRC_POS=") == 0)
-          {
+          if (word1.compare("SRC_POS=") == 0) {
             // std::cout << "Initial word: " << word << std::endl;
             // std::cout << "Attempting to convert: " << word.substr(8) << std::endl;
             Src_Pos.push_back(stoi(word.substr(8), 0, 10));
-            while (iss >> word)
-            {
+            while (iss >> word) {
               Src_Pos.push_back(stoi(word, 0, 10));
             }
           }
-          if (word1.compare("DST_POS=") == 0)
-          {
+          if (word1.compare("DST_POS=") == 0) {
 
             // std::cout << "Initial word: " << word << std::endl;
             // std::cout << "Attempting to convert: " << word.substr(8) << std::endl;
             Dst_Pos.push_back(stoi(word.substr(8), 0, 10));
-            while (iss >> word)
-            {
+            while (iss >> word) {
               Dst_Pos.push_back(stoi(word, 0, 10));
             }
           }
         }
 
-        if (word.length() >= 9)
-        {
+        if (word.length() >= 9) {
           word1 = word.substr(0, 9);
-          if (word1.compare("NUM_ALUS=") == 0)
-          {
+          if (word1.compare("num_ALUS=") == 0) {
             // std::cout << word.substr(9) << std::endl;
-            num_merged = stoi(word.substr(9), 0, 10);
+            num_ALU = stoi(word.substr(9), 0, 10);
           }
-          if (word1.compare("NUM_BFUS=") == 0)
-          {
+          if (word1.compare("NUM_BFUS=") == 0) {
             // std::cout << word.substr(9) << std::endl;
             num_BFU = stoi(word.substr(9), 0, 10);
           }
-          if (word1.compare("SRC_MODE=") == 0)
-          {
+          if (word1.compare("SRC_MODE=") == 0) {
 
             // std::cout << "Initial word: " << word << std::endl;
             // std::cout << "Attempting to convert: " << word.substr(9) << std::endl;
             Src_Mode.push_back(stoi(word.substr(9), 0, 10));
-            while (iss >> word)
-            {
+            while (iss >> word) {
               Src_Mode.push_back(stoi(word));
             }
           }
-          if (word1.compare("NUM_REGS=") == 0)
-          {
+          if (word1.compare("NUM_REGS=") == 0) {
             Num_Regs = stoi(word.substr(9), 0, 10);
           }
-          if (word1.compare("IP_WIDTH=") == 0)
-          {
+          if (word1.compare("IP_WIDTH=") == 0) {
             IP_Width = stoi(word.substr(9), 0, 10);
           }
         }
 
-        if (word.length() >= 10)
-        {
+        if (word.length() >= 10) {
           word1 = word.substr(0, 10);
-          if (word1.compare("REG_WIDTH=") == 0)
-          {
+          if (word1.compare("REG_WIDTH=") == 0) {
             Reg_Width = stoi(word.substr(10), 0, 10);
           }
 
-          if (word1.compare("IMM_WIDTH=") == 0)
-          {
+          if (word1.compare("IMM_WIDTH=") == 0) {
             Imm_Width = stoi(word.substr(10), 0, 10);
           }
         }
 
-        if (word.length() >= 11)
-        {
+        if (word.length() >= 11) {
           word1 = word.substr(0, 11);
-          if (word1.compare("DST_ENCODE=") == 0)
-          {
+          if (word1.compare("DST_ENCODE=") == 0) {
             Dst_Encode.push_back(stoi(word.substr(11), 0, 10));
-            while (iss >> word)
-            {
+            while (iss >> word) {
               Dst_Encode.push_back(stoi(word, 0, 10));
             }
           }
-          if (word1.compare("NUM_WB_ENS=") == 0)
-          {
+          if (word1.compare("NUM_WB_ENS=") == 0) {
             Num_Wb_Ens = stoi(word.substr(11), 0, 10);
           }
         }
 
-        if (word.length() >= 12)
-        {
+        if (word.length() >= 12) {
           word1 = word.substr(0, 12);
-          if (word1.compare("NUM_SRC_POS=") == 0)
-          {
+          if (word1.compare("NUM_SRC_POS=") == 0) {
             Num_Src_Pos = stoi(word.substr(12), 0, 10);
           }
-          if (word1.compare("NUM_DST_POS=") == 0)
-          {
+          if (word1.compare("NUM_DST_POS=") == 0) {
             Num_Dst_Pos = stoi(word.substr(12), 0, 10);
           }
-          if (word1.compare("NUM_THREADS=") == 0)
-          {
+          if (word1.compare("NUM_THREADS=") == 0) {
             Num_Threads = stoi(word.substr(12), 0, 10);
           }
         }
 
-        if (word.length() >= 14)
-        {
+        if (word.length() >= 14) {
           word1 = word.substr(0, 14);
-          if (word1.compare("NUM_SRC_MODES=") == 0)
-          {
+          if (word1.compare("NUM_SRC_MODES=") == 0) {
             Num_Src_Modes = stoi(word.substr(14), 0, 10);
           }
-          if (word1.compare("NUM_REGBLOCKS=") == 0)
-          {
+          if (word1.compare("NUM_REGBLOCKS=") == 0) {
             Num_Regblocks = stoi(word.substr(14), 0, 10);
           }
-          if (word1.compare("DST_EN_ENCODE=") == 0)
-          {
+          if (word1.compare("DST_EN_ENCODE=") == 0) {
             line = line.substr(11);
             std::stringstream iss(line);
             std::string pair;
 
-            while (std::getline(iss, pair, ';'))
-            {
+            while (std::getline(iss, pair, ';')) {
               std::stringstream pair_stream(pair);
               int first, second;
 
-              if (pair_stream >> first >> second)
-              {
+              if (pair_stream >> first >> second) {
                 Dst_En_Encode.push_back({first, second});
               }
             }
           }
         }
 
-        if (word.length() >= 16)
-        {
+        if (word.length() >= 16) {
           word1 = word.substr(0, 16);
-          if (word1.compare("REG_BLOCK_WIDTH=") == 0)
-          {
+          if (word1.compare("REG_BLOCK_WIDTH=") == 0) {
             Reg_Block_Width.push_back(stoi(word.substr(16), 0, 10));
-            while (iss >> word)
-            {
+            while (iss >> word) {
               Reg_Block_Width.push_back(stoi(word, 0, 10));
             }
           }
-          if (word1.compare("MAX_FIELD_WIDTH=") == 0)
-          {
+          if (word1.compare("MAX_FIELD_WIDTH=") == 0) {
             Max_Field_Width = stoi(word.substr(16), 0, 10);
           }
         }
       }
     }
-    instruction_width = num_BFU + num_branch + (num_merged * 3);
+
+    int aluTemp = num_ALU;
+    int bfuTemp = num_BFU;
+    num_merged = 0;
+    while (aluTemp > 0 && bfuTemp > 0) {
+      instrLayout.push_back(FunctionalUnitType::EXTRACT);
+      instrLayout.push_back(FunctionalUnitType::EXTRACT);
+      instrLayout.push_back(FunctionalUnitType::MERGED);
+      instrLayout.push_back(FunctionalUnitType::INSERT);
+      aluTemp--;
+      bfuTemp--;
+      num_merged++;
+    }
+    while(aluTemp > 0) {
+      assert(bfuTemp == 0 && "placing ALUs while remaining BFUs. Should be merged....");
+      instrLayout.push_back(FunctionalUnitType::EXTRACT);
+      instrLayout.push_back(FunctionalUnitType::EXTRACT);
+      instrLayout.push_back(FunctionalUnitType::GFU);
+      instrLayout.push_back(FunctionalUnitType::INSERT);
+      aluTemp--; 
+    }
+    while(bfuTemp > 0) {
+      instrLayout.push_back(FunctionalUnitType::BFU);
+      bfuTemp--; 
+    }
+    instrLayout.push_back(FunctionalUnitType::BRANCH);
+    instruction_width = instrLayout.size();
   }
 
   void get_data()

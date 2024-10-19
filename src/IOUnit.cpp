@@ -1,19 +1,19 @@
-#include "BlueFunctionalUnit.hpp"
+#include "IOUnit.hpp"
 #include <iostream>
 
 // Constructor
-BFU::BFU(bool regFileCon, unsigned slot) : FunctionalUnit(regFileCon, slot), inputStream("input.txt") {
+IOUnit::IOUnit(bool regFileCon, unsigned slot) : FunctionalUnit(regFileCon, slot), inputStream("input.txt") {
 }
 
 // Destructor
-BFU::~BFU() {}
+IOUnit::~IOUnit() {}
 
-void BFU::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS) {
+void IOUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS) {
     switch(I.get_opcode()) {
-    case BFU_INPUT:
+    case IO_UNIT_INPUT:
         handleInput(I, CMS, NMS);
         break;
-    case BFU_OUTPUT:
+    case IO_UNIT_OUTPUT:
         handleOutputEmiti(I, CMS, NMS);
         break;
     default:
@@ -22,7 +22,7 @@ void BFU::processInstruction(Instruction &I, MachineState &CMS, MachineState &NM
     }
 }
 
-void BFU::handleInput(Instruction &I, MachineState &CMS, MachineState &NMS) {
+void IOUnit::handleInput(Instruction &I, MachineState &CMS, MachineState &NMS) {
     switch(I.get_funct3()) {
     case 1:
         handleInputRead(I, CMS, NMS);
@@ -49,7 +49,7 @@ void BFU::handleInput(Instruction &I, MachineState &CMS, MachineState &NMS) {
     }
 }
 
-void BFU::handleInputRead(Instruction &I, MachineState &CMS, MachineState &NMS) {
+void IOUnit::handleInputRead(Instruction &I, MachineState &CMS, MachineState &NMS) {
     int rd = I.get_rd();
     int imm = I.get_immediate();
     int holdInput = 0;
@@ -62,7 +62,7 @@ void BFU::handleInputRead(Instruction &I, MachineState &CMS, MachineState &NMS) 
     NMS.setRegister(rd, holdInput);
 }
 
-void BFU::handleOutputEmiti(Instruction &I, MachineState &CMS, MachineState& NMS) {
+void IOUnit::handleOutputEmiti(Instruction &I, MachineState &CMS, MachineState& NMS) {
     int rd = I.get_rd();
     int imm = I.get_immediate();
     int mask = 0;

@@ -109,6 +109,7 @@ std::vector<std::vector<Instruction>> read(const std::string &filename, PrimateC
 
     if (CurPacket.size() >= primateCfg.instruction_width)
     {
+      std::reverse(CurPacket.begin(), CurPacket.end());
       VLIW.push_back(CurPacket);
       CurPacket.clear();
     }
@@ -129,6 +130,7 @@ std::vector<std::vector<Instruction>> read(const std::string &filename, PrimateC
     // Only push CurPacket if it contains exactly instruction_width instructions
     if (CurPacket.size() == primateCfg.instruction_width)
     {
+      std::reverse(CurPacket.begin(), CurPacket.end());
       VLIW.push_back(CurPacket);
     }
     else
@@ -177,16 +179,24 @@ int main(int argc, char *argv[])
 
   std::vector<std::unique_ptr<FunctionalUnit>> allUnits; 
 
-  for (int i = 0; i < primateCfg.num_branch; i++)
-  {
-    allUnits.push_back(std::move(std::unique_ptr<FunctionalUnit>(new BranchUnit(false, primateCfg.instruction_width-1))));
-  }
-
-  for (int i = 0; i < primateCfg.num_merged; i++)
-  {
-    // This needs to change in order to accomodate between green and blue functional unit once wrapper class is written
-    allUnits.push_back(std::move(std::unique_ptr<FunctionalUnit>(new ALU(false, primateCfg.instruction_width-1-(i*3)))));
-    allUnits.push_back(std::move(std::unique_ptr<FunctionalUnit>(new InsertUnit(filePath_config, true, primateCfg.instruction_width-1-(i*3)))));
+  int slotIdx = 0;
+  for(auto& slotType: primateCfg.instrLayout) {
+    switch(slotType) {
+      case PrimateConfig::FunctionalUnitType::BRANCH:
+        allUnits.push_back(std::make_unique<BranchUnit>(false, slotIdx));
+      case PrimateConfig::FunctionalUnitType::BFU:
+        assert(false && "bfu ordering rules not implemented yet");
+      case PrimateConfig::FunctionalUnitType::GFU:
+        allUnits.push_back(std::make_unique<ALU>(false, slotIdx));
+      case PrimateConfig::FunctionalUnitType::MERGED:
+        assert(false && "merged units not implemented yet");
+      case PrimateConfig::FunctionalUnitType::EXTRACT:
+      case PrimateConfig::FunctionalUnitType::INSERT:
+      
+      default:
+        assert(false && "unknown functional unit type (if you added a new unit add it to main.cpp)")
+    }
+    slotIdx++;
   }
 
   // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)

@@ -1,5 +1,4 @@
-#ifndef FUNCTIONALUNIT_H
-#define FUNCTIONALUNIT_H
+#pragma once
 
 #include "Instruction.hpp"
 #include "MachineState.hpp"
@@ -16,5 +15,3 @@ public:
 
   virtual void processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)= 0;
 };
-
-#endif
