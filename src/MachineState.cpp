@@ -1,5 +1,5 @@
 #include "MachineState.hpp"
-#include "consts.hpp"
+#include "Generated/consts.hpp"
 
 void MachineState::halt() { running = false; }
 
