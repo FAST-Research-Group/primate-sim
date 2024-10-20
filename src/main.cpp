@@ -12,6 +12,8 @@
 #include "Instruction.hpp"
 #include "FunctionalUnit.hpp"
 #include "insert.hpp"
+#include "MergedUnit.hpp"
+#include "Generated/BFUFactory.hpp"
 
 // using namespace std removed; it was still here
 
@@ -181,16 +183,19 @@ int main(int argc, char *argv[])
   std::vector<std::unique_ptr<FunctionalUnit>> allUnits; 
 
   int slotIdx = 0;
+  auto bfuNameIter = primateCfg.getBFUNames().begin();
   for(auto& slotType: primateCfg.instrLayout) {
     switch(slotType) {
       case PrimateConfig::FunctionalUnitType::BRANCH:
         allUnits.push_back(std::make_unique<BranchUnit>(false, slotIdx));
       case PrimateConfig::FunctionalUnitType::BFU:
-        assert(false && "bfu ordering rules not implemented yet");
+        allUnits.push_back(createBFU(*bfuNameIter, true, slotIdx));
+        bfuNameIter++;
       case PrimateConfig::FunctionalUnitType::GFU:
         allUnits.push_back(std::make_unique<ALU>(false, slotIdx));
       case PrimateConfig::FunctionalUnitType::MERGED:
-        assert(false && "merged units not implemented yet");
+        allUnits.push_back(std::make_unique<MergedUnit>(createBFU(*bfuNameIter, false, slotIdx), std::make_unique<ALU>(false, slotIdx), false, slotIdx));
+        bfuNameIter++;
       case PrimateConfig::FunctionalUnitType::EXTRACT:
       case PrimateConfig::FunctionalUnitType::INSERT:
       default:
