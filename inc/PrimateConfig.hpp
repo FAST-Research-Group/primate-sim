@@ -73,7 +73,6 @@ public:
     {
       std::cerr << "Error opening bfu_lists config file at: " << bfuListsPath << "!!!!" << std::endl;
     }
-    BFUNames.push_back("io");
     ParserState parserState = OUT_SCOPE;
     while (std::getline(inputFile, line)) {
       ltrim(line);
@@ -95,6 +94,8 @@ public:
         }
       }
     }
+    BFUNames.push_back("lsu");
+    BFUNames.push_back("io");
   }
 
   // ctor to read file
