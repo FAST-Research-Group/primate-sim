@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "insert.hpp"
+#include "extract.hpp"
 
 InsertUnit::InsertUnit(PrimateConfig cfg, bool reg, unsigned slot) : primateCFG(cfg), FunctionalUnit(reg, slot) {}
 

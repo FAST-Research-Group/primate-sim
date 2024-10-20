@@ -11,7 +11,7 @@
 #include "alu.hpp"
 #include "Instruction.hpp"
 #include "FunctionalUnit.hpp"
-#include "insert.hpp"
+#include "extract.hpp"
 #include "MergedUnit.hpp"
 #include "Generated/BFUFactory.hpp"
 
@@ -180,26 +180,28 @@ int main(int argc, char *argv[])
   // reading an parsing done here (bug will appear since "consts.hpp" has different dimensions for VLIW than my hardcoded main);
   std::vector<std::vector<Instruction>> instructions = read(filePath_instruction, primateCfg);
 
-  std::vector<std::unique_ptr<FunctionalUnit>> allUnits; 
+  std::vector<std::unique_ptr<FunctionalUnit>> allUnits;
 
   int slotIdx = 0;
   auto bfuNameIter = primateCfg.getBFUNames().begin();
-  for(auto& slotType: primateCfg.instrLayout) {
-    switch(slotType) {
-      case PrimateConfig::FunctionalUnitType::BRANCH:
-        allUnits.push_back(std::make_unique<BranchUnit>(false, slotIdx));
-      case PrimateConfig::FunctionalUnitType::BFU:
-        allUnits.push_back(createBFU(*bfuNameIter, true, slotIdx));
-        bfuNameIter++;
-      case PrimateConfig::FunctionalUnitType::GFU:
-        allUnits.push_back(std::make_unique<ALU>(false, slotIdx));
-      case PrimateConfig::FunctionalUnitType::MERGED:
-        allUnits.push_back(std::make_unique<MergedUnit>(createBFU(*bfuNameIter, false, slotIdx), std::make_unique<ALU>(false, slotIdx), false, slotIdx));
-        bfuNameIter++;
-      case PrimateConfig::FunctionalUnitType::EXTRACT:
-      case PrimateConfig::FunctionalUnitType::INSERT:
-      default:
-        assert(false && "unknown functional unit type (if you added a new unit add it to main.cpp)");
+  for (auto &slotType : primateCfg.instrLayout)
+  {
+    switch (slotType)
+    {
+    case PrimateConfig::FunctionalUnitType::BRANCH:
+      allUnits.push_back(std::make_unique<BranchUnit>(false, slotIdx));
+    case PrimateConfig::FunctionalUnitType::BFU:
+      allUnits.push_back(createBFU(*bfuNameIter, true, slotIdx));
+      bfuNameIter++;
+    case PrimateConfig::FunctionalUnitType::GFU:
+      allUnits.push_back(std::make_unique<ALU>(false, slotIdx));
+    case PrimateConfig::FunctionalUnitType::MERGED:
+      allUnits.push_back(std::make_unique<MergedUnit>(createBFU(*bfuNameIter, false, slotIdx), std::make_unique<ALU>(false, slotIdx), false, slotIdx));
+      bfuNameIter++;
+    case PrimateConfig::FunctionalUnitType::EXTRACT:
+    case PrimateConfig::FunctionalUnitType::INSERT:
+    default:
+      assert(false && "unknown functional unit type (if you added a new unit add it to main.cpp)");
     }
     slotIdx++;
   }
