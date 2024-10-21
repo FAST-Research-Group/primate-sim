@@ -8,6 +8,7 @@ InsertUnit::~InsertUnit() {}
 void InsertUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
     int destination = I.get_rd();
+    Register src = CMS.getRegister(I.get_rs1());
     int source = I.get_rs1();
     int immediate = I.get_immediate();
     int mode_size = primateCFG.Src_Mode.size();
@@ -25,14 +26,14 @@ void InsertUnit::processInstruction(Instruction &I, MachineState &CMS, MachineSt
         clog_size++;
         src_size = src_size >> 1;
     }
-
+    // this is wrong. Should be the value at I.get_rs1() not the actual register number
     int mask = immediate & ((1 << clog_size) - 1);
     immediate = immediate >> clog_size;
 
     int shift = immediate & ((1 << clog_mode) - 1);
 
-    Register result = (source >> shift) & mask;
-    NMS.setRegister(destination, result);
+    Register result = (src >> shift) & mask;
+    NMS.setRegister(destination, result); // shouldn't it be the current state for extract?
 
     return;
 }
