@@ -163,7 +163,7 @@ void get_data(Instruction dat)
 int main(int argc, char *argv[])
 {
   // error if wrong amount of arguments arguments
-  if (argc != 3)
+  if (argc != 4)
   {
     std::cerr << "Usage: " << argv[0] << " <path to program.bin> <path to primate.cfg> <path to BFUListsPath>" << std::endl;
     return 1;
