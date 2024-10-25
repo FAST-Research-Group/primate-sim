@@ -181,6 +181,7 @@ int main(int argc, char *argv[])
   std::vector<std::vector<Instruction>> instructions = read(filePath_instruction, primateCfg);
 
   std::vector<std::unique_ptr<FunctionalUnit>> allUnits;
+  std::vector<int> typeOfUnit; // Green - 0, Blue - 1, Merged - 2, Insert - 3, Extract - 4, Branch - 5
 
   int slotIdx = 0;
   auto bfuNameIter = primateCfg.getBFUNames().begin();
@@ -190,16 +191,29 @@ int main(int argc, char *argv[])
     {
     case PrimateConfig::FunctionalUnitType::BRANCH:
       allUnits.push_back(std::make_unique<BranchUnit>(false, slotIdx));
+      typeOfUnit.push_back(5);
+      break;
     case PrimateConfig::FunctionalUnitType::BFU:
       allUnits.push_back(createBFU(*bfuNameIter, true, slotIdx));
       bfuNameIter++;
+      typeOfUnit.push_back(1);
+      break;
     case PrimateConfig::FunctionalUnitType::GFU:
       allUnits.push_back(std::make_unique<ALU>(false, slotIdx));
+      typeOfUnit.push_back(0);
+      break;
     case PrimateConfig::FunctionalUnitType::MERGED:
       allUnits.push_back(std::make_unique<MergedUnit>(createBFU(*bfuNameIter, false, slotIdx), std::make_unique<ALU>(false, slotIdx), false, slotIdx));
       bfuNameIter++;
+      typeOfUnit.push_back(2);
+      break;
     case PrimateConfig::FunctionalUnitType::EXTRACT:
+      allUnits.push_back(std::make_unique<ExtractUnit>(primateCfg, true, slotIdx)); // Potential BUG: idk if this is intended behavior
+      typeOfUnit.push_back(4);
+      break;
     case PrimateConfig::FunctionalUnitType::INSERT:
+      // allUnits.push_back(std::make_unique<InsertUnit>(primateCfg, true, slotIdx)); // need to merge the insert unit
+      // typeOfUnit.push_back(3);
     default:
       assert(false && "unknown functional unit type (if you added a new unit add it to main.cpp)");
     }
@@ -207,12 +221,13 @@ int main(int argc, char *argv[])
   }
 
   // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
-  MachineState CurrentState(0, primateCfg), NextState(0, primateCfg);
+  MachineState CurrentState(0, primateCfg), NextState(0, primateCfg), TempState(0, primateCfg); // tempState will be used to store the extracts and load inserts Potential BUG
 
   // Initialize Functional Units over here
 
   // Throw warnings if same destination
   // If statement necessary in order to make sure that I don't get an out of range exception from the nested for loopss
+  // This has to be updated in order to be more accurate
   if (instructions.size() >= 2)
   {
     for (auto &instr : instructions)
@@ -246,8 +261,32 @@ int main(int argc, char *argv[])
     }
     for (int i = 0; i < allUnits.size(); i++)
     {
+      // Green - 0, Blue - 1, Merged - 2, Insert - 3, Extract - 4, Branch - 5
+      // code brokie, determine how to assign to tempMachineState() for certain units
       Instruction &temp_instr = instructions.at(CurrentState.getPC()).at(i);
-      allUnits.at(i)->processInstruction(temp_instr, CurrentState, NextState);
+      // BUG: I hope this is right, idk how else to handle the different dataflow stuff :)
+      switch (typeOfUnit.at(i))
+      {
+      case 0:
+        allUnits.at(i)->processInstruction(temp_instr, TempState, TempState);
+        break;
+      case 1:
+        allUnits.at(i)->processInstruction(temp_instr, CurrentState, NextState);
+        break;
+      case 2:
+        allUnits.at(i)->processInstruction(temp_instr, TempState, TempState);
+        break;
+      case 3:
+        allUnits.at(i)->processInstruction(temp_instr, TempState, NextState);
+        break;
+      case 4:
+        allUnits.at(i)->processInstruction(temp_instr, CurrentState, TempState);
+        break;
+      case 5:
+      default:
+        allUnits.at(i)->processInstruction(temp_instr, CurrentState, NextState);
+        break;
+      }
     }
     CurrentState = NextState;
     // processInstruction(instructions, Machine0);
