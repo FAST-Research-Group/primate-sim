@@ -3,12 +3,12 @@
 #include "Instruction.hpp"
 #include "MachineState.hpp"
 
-InsertUnit::InsertUnit(std::string fpath) : primateCFG(fpath), FunctionalUnit(reg, slot) {}
+InsertUnit::InsertUnit(PrimateConfig cfg, bool reg, unsigned slot) : primateCFG(cfg), FunctionalUnit(reg, slot) {}
 
 InsertUnit::~InsertUnit() {}
 
-void InsertUnit::processInstruction(Instruction &I, MachineState &MS)
-{../../inc/ExtractUnit.hpp
+void InsertUnit::processInstruction(Instruction &I, MachineState &MS, MachineState &NMS)
+{
     int destination = I.get_rd();               // rd
     int source = I.get_rs1();                   // rs1
     int immediate = I.get_immediate();          // FieldSpec
@@ -16,7 +16,6 @@ void InsertUnit::processInstruction(Instruction &I, MachineState &MS)
     int src_size = primateCFG.Src_Pos.size();   // nmber of positions
     int clog_mode;
     int clog_size;
-
 
     while (mode_size > 0)
     {
