@@ -8,7 +8,7 @@ private:
     PrimateConfig primateCFG;
 
 public:
-    InsertUnit(std::string fpath);
+    InsertUnit(std::string fpath, bool, unsigned);
     virtual ~InsertUnit();
     void processInstruction(Instruction &I, MachineState &MS) override;
 };

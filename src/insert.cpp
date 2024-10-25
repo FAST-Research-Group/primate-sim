@@ -3,7 +3,7 @@
 #include "Instruction.hpp"
 #include "MachineState.hpp"
 
-InsertUnit::InsertUnit(std::string fpath) : primateCFG(fpath) {}
+InsertUnit::InsertUnit(std::string fpath) : primateCFG(fpath), FunctionalUnit(reg, slot) {}
 
 InsertUnit::~InsertUnit() {}
 
