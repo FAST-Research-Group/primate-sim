@@ -8,7 +8,7 @@ InsertUnit::InsertUnit(std::string fpath) : primateCFG(fpath), FunctionalUnit(re
 InsertUnit::~InsertUnit() {}
 
 void InsertUnit::processInstruction(Instruction &I, MachineState &MS)
-{
+{../../inc/ExtractUnit.hpp
     int destination = I.get_rd();               // rd
     int source = I.get_rs1();                   // rs1
     int immediate = I.get_immediate();          // FieldSpec
@@ -16,6 +16,7 @@ void InsertUnit::processInstruction(Instruction &I, MachineState &MS)
     int src_size = primateCFG.Src_Pos.size();   // nmber of positions
     int clog_mode;
     int clog_size;
+
 
     while (mode_size > 0)
     {
