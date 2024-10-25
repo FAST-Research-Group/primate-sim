@@ -14,6 +14,7 @@
 #include "extract.hpp"
 #include "MergedUnit.hpp"
 #include "Generated/BFUFactory.hpp"
+#include "insert.hpp"
 
 // using namespace std removed; it was still here
 
@@ -212,8 +213,8 @@ int main(int argc, char *argv[])
       typeOfUnit.push_back(4);
       break;
     case PrimateConfig::FunctionalUnitType::INSERT:
-      // allUnits.push_back(std::make_unique<InsertUnit>(primateCfg, true, slotIdx)); // need to merge the insert unit
-      // typeOfUnit.push_back(3);
+      allUnits.push_back(std::make_unique<InsertUnit>(primateCfg, true, slotIdx)); // need to merge the insert unit
+      typeOfUnit.push_back(3);
     default:
       assert(false && "unknown functional unit type (if you added a new unit add it to main.cpp)");
     }
