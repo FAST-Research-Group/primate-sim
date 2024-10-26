@@ -114,6 +114,10 @@ std::vector<std::vector<Instruction>> read(const std::string &filename, PrimateC
     {
       std::reverse(CurPacket.begin(), CurPacket.end());
       VLIW.push_back(CurPacket);
+      for (int i = 0; i < CurPacket.size(); i++)
+      {
+        std::cout << CurPacket.at(i).get_rawinstruction() << std::endl;
+      }
       CurPacket.clear();
     }
 
@@ -183,7 +187,9 @@ int main(int argc, char *argv[])
 
   std::vector<std::unique_ptr<FunctionalUnit>> allUnits;
   std::vector<int> typeOfUnit; // Green - 0, Blue - 1, Merged - 2, Insert - 3, Extract - 4, Branch - 5
-
+  std::cout << "Instruction_Width: " << primateCfg.instruction_width << std::endl;
+  std::cout << "Num_ALU: " << primateCfg.num_ALU << std::endl;
+  std::cout << "Num_BFU: " << primateCfg.num_BFU << std::endl;
   int slotIdx = 0;
   auto bfuNameIter = primateCfg.getBFUNames().begin();
   for (auto &slotType : primateCfg.instrLayout)
@@ -215,6 +221,7 @@ int main(int argc, char *argv[])
     case PrimateConfig::FunctionalUnitType::INSERT:
       allUnits.push_back(std::make_unique<InsertUnit>(primateCfg, true, slotIdx)); // need to merge the insert unit
       typeOfUnit.push_back(3);
+      break;
     default:
       assert(false && "unknown functional unit type (if you added a new unit add it to main.cpp)");
     }
@@ -229,27 +236,48 @@ int main(int argc, char *argv[])
   // Throw warnings if same destination
   // If statement necessary in order to make sure that I don't get an out of range exception from the nested for loopss
   // This has to be updated in order to be more accurate
-  if (instructions.size() >= 2)
+  // I claim this isn't very helpful because of extracts and inserts
+  // if (instructions.size() >= 2)
+  // {
+  //   for (auto &instr : instructions)
+  //   {
+  //     std::unordered_set<int> destRegs;
+  //     for (auto &subInstr : instr)
+  //     {
+  //       int rd = subInstr.get_rd();
+  //       if (destRegs.find(rd) == destRegs.end())
+  //       {
+  //         destRegs.insert(rd);
+  //       }
+  //       else
+  //       {
+  //         auto instrIter = std::find(instructions.begin(), instructions.end(), instr);
+  //         std::cout << "WARNING: Two subinstrs write to same reg in Instr: "
+  //                   << std::distance(instructions.begin(), instrIter)
+  //                   << " dest reg: " << rd
+  //                   << "\n";
+  //       }
+  //     }
+  //   }
+  // }
+
+  for (int i = 0; i < instructions.size(); i++)
   {
-    for (auto &instr : instructions)
+    std::set<int> CurrentDestinations;
+
+    for (int j = 1; j < instructions.at(i).size(); j++)
     {
-      std::unordered_set<int> destRegs;
-      for (auto &subInstr : instr)
+      int destination = instructions.at(i).at(j).get_rawinstruction();
+      if (destination == 0)
       {
-        int rd = subInstr.get_rd();
-        if (destRegs.find(rd) == destRegs.end())
-        {
-          destRegs.insert(rd);
-        }
-        else
-        {
-          auto instrIter = std::find(instructions.begin(), instructions.end(), instr);
-          std::cout << "WARNING: Two subinstrs write to same reg in Instr: "
-                    << std::distance(instructions.begin(), instrIter)
-                    << " dest reg: " << rd
-                    << "\n";
-        }
+        continue;
       }
+
+      if (CurrentDestinations.count(destination))
+      {
+        std::cout << "Duplicate entry found at instruction " << i << ". Rd = " << instructions.at(i).at(j).get_rd() << std::endl;
+      }
+      CurrentDestinations.insert(destination);
     }
   }
 
@@ -284,8 +312,10 @@ int main(int argc, char *argv[])
         allUnits.at(i)->processInstruction(temp_instr, CurrentState, TempState);
         break;
       case 5:
-      default:
         allUnits.at(i)->processInstruction(temp_instr, CurrentState, NextState);
+        break;
+      default:
+        throw("You messed up. BFU not added properly LOL I made this up");
         break;
       }
     }

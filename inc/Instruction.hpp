@@ -39,8 +39,8 @@ private:
 
 public:
     Instruction() = default;
-    Instruction(const Instruction&) = default;
-    Instruction& operator=(const Instruction& other) = default;
+    Instruction(const Instruction &) = default;
+    Instruction &operator=(const Instruction &other) = default;
 
     Instruction(int raw_instruction)
     {
@@ -163,9 +163,11 @@ public:
     int get_opcode() { return this->opcode; }
     int get_funct3() { return this->funct3; }
     int get_funct7() { return this->funct7; }
+    int get_rawinstruction() { return this->raw_instruction; }
     type get_type() { return this->inst; }
     void to_string() { std::cout << this->assembly << std::endl; }
-    bool isGFUInst() {
+    bool isGFUInst()
+    {
         return RISCV_INFO::riscv_opcodes.find(this->opcode) != RISCV_INFO::riscv_opcodes.end();
     }
 

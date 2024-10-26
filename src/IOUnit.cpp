@@ -2,14 +2,21 @@
 #include <iostream>
 
 // Constructor
-IOUnit::IOUnit(bool regFileCon, unsigned slot) : FunctionalUnit(regFileCon, slot), inputStream("input.txt") {
+IOUnit::IOUnit(bool regFileCon, unsigned slot) : FunctionalUnit(regFileCon, slot), inputStream("input.txt")
+{
 }
 
 // Destructor
 IOUnit::~IOUnit() {}
 
-void IOUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS) {
-    switch(I.get_opcode()) {
+void IOUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
+{
+    if (I.get_opcode() == 19)
+    {
+        return;
+    }
+    switch (I.get_opcode())
+    {
     case IO_UNIT_INPUT:
         handleInput(I, CMS, NMS);
         break;
@@ -22,8 +29,14 @@ void IOUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState 
     }
 }
 
-void IOUnit::handleInput(Instruction &I, MachineState &CMS, MachineState &NMS) {
-    switch(I.get_funct3()) {
+void IOUnit::handleInput(Instruction &I, MachineState &CMS, MachineState &NMS)
+{
+    if (I.get_opcode() == 19)
+    {
+        return;
+    }
+    switch (I.get_funct3())
+    {
     case 1:
         handleInputRead(I, CMS, NMS);
         break;
@@ -49,7 +62,8 @@ void IOUnit::handleInput(Instruction &I, MachineState &CMS, MachineState &NMS) {
     }
 }
 
-void IOUnit::handleInputRead(Instruction &I, MachineState &CMS, MachineState &NMS) {
+void IOUnit::handleInputRead(Instruction &I, MachineState &CMS, MachineState &NMS)
+{
     int rd = I.get_rd();
     int imm = I.get_immediate();
     int holdInput = 0;
@@ -57,16 +71,18 @@ void IOUnit::handleInputRead(Instruction &I, MachineState &CMS, MachineState &NM
     char seperatorTrash;
     std::string temp;
     inputStream >> isLast >> seperatorTrash >> hasData >> seperatorTrash >> temp;
-    for(int i = 0; i < imm; ++i)
+    for (int i = 0; i < imm; ++i)
         holdInput += (temp[i] - '0') << i;
     NMS.setRegister(rd, holdInput);
 }
 
-void IOUnit::handleOutputEmiti(Instruction &I, MachineState &CMS, MachineState& NMS) {
+void IOUnit::handleOutputEmiti(Instruction &I, MachineState &CMS, MachineState &NMS)
+{
     int rd = I.get_rd();
     int imm = I.get_immediate();
     int mask = 0;
-    for(int i = 1; i < imm; i++) {
+    for (int i = 1; i < imm; i++)
+    {
         mask += 1 * i;
     }
     std::cout << (CMS.getRegister(rd) & mask);

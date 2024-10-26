@@ -9,6 +9,10 @@ InsertUnit::~InsertUnit() {}
 
 void InsertUnit::processInstruction(Instruction &I, MachineState &MS, MachineState &NMS)
 {
+    if (I.get_opcode() == 19)
+    {
+        return;
+    }
     int destination = I.get_rd();               // rd
     int source = I.get_rs1();                   // rs1
     int immediate = I.get_immediate();          // FieldSpec

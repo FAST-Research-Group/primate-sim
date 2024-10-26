@@ -7,6 +7,10 @@ ExtractUnit::~ExtractUnit() {}
 
 void ExtractUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
+    if (I.get_opcode() == 19)
+    {
+        return;
+    }
     int destination = I.get_rd();
     Register src = CMS.getRegister(I.get_rs1());
     int source = I.get_rs1();

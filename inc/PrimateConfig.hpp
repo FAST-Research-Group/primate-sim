@@ -181,8 +181,9 @@ public:
         if (word.length() >= 9)
         {
           word1 = word.substr(0, 9);
-          if (word1.compare("num_ALUS=") == 0)
+          if (word1.compare("NUM_ALUS=") == 0)
           {
+            std::cout << "TESTING" << std::endl;
             // std::cout << word.substr(9) << std::endl;
             num_ALU = stoi(word.substr(9), 0, 10);
           }
@@ -324,6 +325,7 @@ public:
     }
     while (aluTemp > 0)
     {
+      // BUG: TESTING PURPOSES REMOVED EXTRACT AND INSERT
       assert(bfuTemp == 0 && "placing ALUs while remaining BFUs. Should be merged....");
       instrLayout.push_back(FunctionalUnitType::EXTRACT);
       instrLayout.push_back(FunctionalUnitType::EXTRACT);
