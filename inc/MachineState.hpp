@@ -24,7 +24,7 @@ struct MachineState
   void halt();
 
   MachineState(uint64_t starting_addr, PrimateConfig &cfg) : interconnect(cfg.instruction_width, std::make_pair<bool, Register>(false, 0)),
-                                                             registerFile(0, cfg.Num_Regs),
+                                                             registerFile(cfg.Num_Regs),
                                                              pc(starting_addr),
                                                              running(true),
                                                              configFile(cfg) {};
