@@ -31,6 +31,8 @@ void BranchUnit::processInstruction(Instruction &I, MachineState &CMS, MachineSt
     // Branch Unit doesn't read from interconnect?
     // Register rs1 = CMS.getInterconnectValue(I.get_rs1());
     // Register rs2 = CMS.getInterconnectValue(I.get_rs2());
+
+    // std::cout << std::hex << I.get_rawinstruction() << std::endl;
     switch (I.get_type())
     {
     case Instruction::type::J:
