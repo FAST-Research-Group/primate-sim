@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
     }
     slotIdx++;
   }
-
+  std::cout << "Finished FuncUnit Layout" << std::endl;
   // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
   MachineState CurrentState(0, primateCfg), NextState(0, primateCfg), TempState(0, primateCfg); // tempState will be used to store the extracts and load inserts Potential BUG
 
@@ -280,7 +280,10 @@ int main(int argc, char *argv[])
       CurrentDestinations.insert(destination);
     }
   }
+  std::cout << "Finished Destination Register Collision Check" << std::endl;
 
+  int instruction = 0;
+  int sub_instruction = 0;
   while (CurrentState.running)
   {
     if (CurrentState.getPC() >= instructions.size())
@@ -290,6 +293,7 @@ int main(int argc, char *argv[])
     }
     for (int i = 0; i < allUnits.size(); i++)
     {
+      std::cout << "Beginning Instruction: " << instruction << " " << sub_instruction << std::endl;
       // Green - 0, Blue - 1, Merged - 2, Insert - 3, Extract - 4, Branch - 5
       // code brokie, determine how to assign to tempMachineState() for certain units
       Instruction &temp_instr = instructions.at(CurrentState.getPC()).at(i);
@@ -312,13 +316,19 @@ int main(int argc, char *argv[])
         allUnits.at(i)->processInstruction(temp_instr, CurrentState, TempState);
         break;
       case 5:
+        std::cout << "Processing Branch Instruction" << std::endl;
         allUnits.at(i)->processInstruction(temp_instr, CurrentState, NextState);
+        std::cout << "Finished Processing Branch Instruction" << std::endl;
         break;
       default:
         throw("You messed up. BFU not added properly LOL I made this up");
         break;
       }
+      std::cout << "Executed Instruction " << instruction << " " << sub_instruction << " with Unit: " << typeOfUnit.at(i) << std::endl;
+      sub_instruction = sub_instruction + 1;
     }
+    instruction++;
+    std::cout << std::endl;
     CurrentState = NextState;
     // processInstruction(instructions, Machine0);
   }
