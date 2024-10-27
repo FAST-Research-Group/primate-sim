@@ -7,12 +7,26 @@ ExtractUnit::~ExtractUnit() {}
 
 void ExtractUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
-    if (I.get_opcode() == 19)
+    // std::cout << "We made it here, with Opcode:" << I.get_rawinstruction() << std::endl;
+    if (I.get_rawinstruction() == 19)
     {
         return;
     }
+    Register src;
     int destination = I.get_rd();
-    Register src = CMS.getRegister(I.get_rs1());
+    // std::cout << "WE MADE IT HERE" << std::endl;
+    if (this->isConnectedToRegisterFile())
+    {
+        // std::cout << "Reading from Reg File" << std::endl;
+        src = CMS.getRegister(I.get_rs1());
+        // std::cout << "Made it past this." << std::endl;
+    }
+    else
+    {
+        // std::cout << "Reading from Interconnect" << std::endl;
+        src = CMS.getInterconnectValue(I.get_rs1());
+    }
+
     int source = I.get_rs1();
     int immediate = I.get_immediate();
     int mode_size = primateCFG.Src_Mode.size();
@@ -30,14 +44,17 @@ void ExtractUnit::processInstruction(Instruction &I, MachineState &CMS, MachineS
         clog_size++;
         src_size = src_size >> 1;
     }
-    // this is wrong. Should be the value at I.get_rs1() not the actual register number
+
     int mask = immediate & ((1 << clog_size) - 1);
     immediate = immediate >> clog_size;
 
     int shift = immediate & ((1 << clog_mode) - 1);
 
     Register result = (src >> shift) & mask;
-    NMS.setRegister(destination, result); // shouldn't it be the current state for extract?
-
+    // std::cout << "Destination Register is: " << destination << " and Result is: " << result << std::endl;
+    // NMS.setRegister(destination, 0);
+    // std::cout << "Instruction finished. Result is:  " << NMS.getRegister(destination) << std::endl;
+    NMS.setInterconnectValue(destination, result); // was setRegister
+    // std::cout << "Instruction finished: " << NMS.getInterconnectValue(destination) << std::endl;
     return;
 }
