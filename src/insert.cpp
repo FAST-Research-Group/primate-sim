@@ -7,7 +7,7 @@ InsertUnit::InsertUnit(PrimateConfig cfg, bool reg, unsigned slot) : primateCFG(
 
 InsertUnit::~InsertUnit() {}
 
-void InsertUnit::processInstruction(Instruction &I, MachineState &MS, MachineState &NMS)
+void InsertUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
     if (I.get_opcode() == 19)
     {
@@ -37,16 +37,28 @@ void InsertUnit::processInstruction(Instruction &I, MachineState &MS, MachineSta
 
     int shift = immediate & ((1 << clog_mode) - 1);
 
-    Register dest_value = MS.getRegister(destination);
+    Register dest_value = CMS.getRegister(destination);
 
-    Register value_to_insert = (source & mask) << shift;
+    // Potential Bug, added by Mircea
+    Register result_value;
+    if (this->isConnectedToRegisterFile())
+    {
+        result_value = CMS.getRegister(I.get_rs1());
+    }
+    else
+    {
+        result_value = CMS.getInterconnectValue(I.get_rs1());
+    }
 
+    Register value_to_insert = (result_value & mask) << shift; // was source before
+
+    // Mircea additions end here
     Register clear_mask = ~(((1 << mask) - 1) << shift);
     dest_value &= clear_mask;
 
     dest_value |= value_to_insert;
 
-    MS.setRegister(destination, dest_value);
+    CMS.setRegister(destination, dest_value);
 
     return;
 }
