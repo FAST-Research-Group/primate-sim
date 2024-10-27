@@ -183,7 +183,7 @@ public:
           word1 = word.substr(0, 9);
           if (word1.compare("NUM_ALUS=") == 0)
           {
-            std::cout << "TESTING" << std::endl;
+            // std::cout << "TESTING" << std::endl;
             // std::cout << word.substr(9) << std::endl;
             num_ALU = stoi(word.substr(9), 0, 10);
           }

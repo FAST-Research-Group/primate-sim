@@ -116,7 +116,7 @@ std::vector<std::vector<Instruction>> read(const std::string &filename, PrimateC
       VLIW.push_back(CurPacket);
       for (int i = 0; i < CurPacket.size(); i++)
       {
-        std::cout << CurPacket.at(i).get_rawinstruction() << std::endl;
+        // std::cout << CurPacket.at(i).get_rawinstruction() << std::endl;
       }
       CurPacket.clear();
     }
@@ -268,7 +268,7 @@ int main(int argc, char *argv[])
     for (int j = 1; j < instructions.at(i).size(); j++)
     {
       int destination = instructions.at(i).at(j).get_rawinstruction();
-      if (destination == 0)
+      if (destination == 19)
       {
         continue;
       }
