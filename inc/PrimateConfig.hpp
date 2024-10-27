@@ -313,6 +313,7 @@ public:
     int aluTemp = num_ALU;
     int bfuTemp = num_BFU;
     num_merged = 0;
+    instrLayout.push_back(FunctionalUnitType::BRANCH);
     while (aluTemp > 0 && bfuTemp > 0)
     {
       instrLayout.push_back(FunctionalUnitType::EXTRACT);
@@ -338,7 +339,7 @@ public:
       instrLayout.push_back(FunctionalUnitType::BFU);
       bfuTemp--;
     }
-    instrLayout.push_back(FunctionalUnitType::BRANCH);
+
     instruction_width = instrLayout.size();
   }
 
