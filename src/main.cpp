@@ -281,7 +281,9 @@ int main(int argc, char *argv[])
     }
   }
   std::cout << "Finished Destination Register Collision Check" << std::endl;
-
+  std::cout << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
   int instruction = 0;
   int sub_instruction = 0;
   while (CurrentState.running)
@@ -293,7 +295,7 @@ int main(int argc, char *argv[])
     }
     for (int i = 0; i < allUnits.size(); i++)
     {
-      std::cout << "Beginning Instruction: " << instruction << " " << sub_instruction << std::endl;
+      // std::cout << "Beginning Instruction: " << instruction << " " << sub_instruction << std::endl;
       // Green - 0, Blue - 1, Merged - 2, Insert - 3, Extract - 4, Branch - 5
       // code brokie, determine how to assign to tempMachineState() for certain units
       Instruction &temp_instr = instructions.at(CurrentState.getPC()).at(i);
@@ -301,7 +303,9 @@ int main(int argc, char *argv[])
       switch (typeOfUnit.at(i))
       {
       case 0:
+        std::cout << "Beginning GFU Instruction with immediate: " << temp_instr.get_immediate() << std::endl;
         allUnits.at(i)->processInstruction(temp_instr, TempState, TempState);
+        std::cout << "Finished instruction" << std::endl;
         break;
       case 1:
         allUnits.at(i)->processInstruction(temp_instr, CurrentState, NextState);
@@ -316,9 +320,9 @@ int main(int argc, char *argv[])
         allUnits.at(i)->processInstruction(temp_instr, CurrentState, TempState);
         break;
       case 5:
-        std::cout << "Processing Branch Instruction" << std::endl;
+        // std::cout << "Processing Branch Instruction" << std::endl;
         allUnits.at(i)->processInstruction(temp_instr, CurrentState, NextState);
-        std::cout << "Finished Processing Branch Instruction" << std::endl;
+        // std::cout << "Finished Processing Branch Instruction" << std::endl;
         break;
       default:
         throw("You messed up. BFU not added properly LOL I made this up");
