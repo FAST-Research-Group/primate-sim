@@ -1,5 +1,10 @@
 addi x0, x0, 0
+extract r0, r0, #8
+addi x0, x0, 0
 addi x0, x0, -15
+insert x0, x0, #8
+
+
 addi x0, x0, 0
 slti x1, x0, 0 ; x1<- 1
 addi x0, x0, 0
@@ -48,3 +53,7 @@ addi x0 x0 0
 sra x25 x0 x1
 jal x0 -2
 addi x0 x0 0
+
+
+
+; the cfg file had 8 registers, I changed it to 32 since it was easier for me to test
