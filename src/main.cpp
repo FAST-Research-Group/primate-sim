@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
     switch (slotType)
     {
     case PrimateConfig::FunctionalUnitType::BRANCH:
-      allUnits.push_back(std::make_unique<BranchUnit>(false, slotIdx));
+      allUnits.push_back(std::make_unique<BranchUnit>(true, slotIdx));
       typeOfUnit.push_back(5);
       break;
     case PrimateConfig::FunctionalUnitType::BFU:
