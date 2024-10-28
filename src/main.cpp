@@ -112,7 +112,8 @@ std::vector<std::vector<Instruction>> read(const std::string &filename, PrimateC
 
     if (CurPacket.size() >= primateCfg.instruction_width)
     {
-      std::reverse(CurPacket.begin(), CurPacket.end());
+      // the line below reverses the order of instructions which isn't how the functional units are lined up
+      //  std::reverse(CurPacket.begin(), CurPacket.end());
       VLIW.push_back(CurPacket);
       for (int i = 0; i < CurPacket.size(); i++)
       {
@@ -187,9 +188,9 @@ int main(int argc, char *argv[])
 
   std::vector<std::unique_ptr<FunctionalUnit>> allUnits;
   std::vector<int> typeOfUnit; // Green - 0, Blue - 1, Merged - 2, Insert - 3, Extract - 4, Branch - 5
-  std::cout << "Instruction_Width: " << primateCfg.instruction_width << std::endl;
-  std::cout << "Num_ALU: " << primateCfg.num_ALU << std::endl;
-  std::cout << "Num_BFU: " << primateCfg.num_BFU << std::endl;
+  // std::cout << "Instruction_Width: " << primateCfg.instruction_width << std::endl;
+  // std::cout << "Num_ALU: " << primateCfg.num_ALU << std::endl;
+  // std::cout << "Num_BFU: " << primateCfg.num_BFU << std::endl;
   int slotIdx = 0;
   auto bfuNameIter = primateCfg.getBFUNames().begin();
   for (auto &slotType : primateCfg.instrLayout)
@@ -227,7 +228,15 @@ int main(int argc, char *argv[])
     }
     slotIdx++;
   }
+
+  // for (int i = 0; i < allUnits.size(); i++)
+  // {
+  //   std::cout << typeOfUnit.at(i) << " ";
+  // }
+  // std::cout << std::endl;
+  // std::cout << std::endl;
   std::cout << "Finished FuncUnit Layout" << std::endl;
+
   // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
   MachineState CurrentState(0, primateCfg), NextState(0, primateCfg), TempState(0, primateCfg); // tempState will be used to store the extracts and load inserts Potential BUG
 
@@ -293,28 +302,35 @@ int main(int argc, char *argv[])
       std::cout << "FATAL ERROR: PC larger than number of instructions!!!!!\n";
       exit(-1);
     }
+    sub_instruction = 0;
     for (int i = 0; i < allUnits.size(); i++)
     {
       // std::cout << "Beginning Instruction: " << instruction << " " << sub_instruction << std::endl;
       // Green - 0, Blue - 1, Merged - 2, Insert - 3, Extract - 4, Branch - 5
       // code brokie, determine how to assign to tempMachineState() for certain units
       Instruction &temp_instr = instructions.at(CurrentState.getPC()).at(i);
+      std::cout << std::hex << temp_instr.get_rawinstruction() << std::endl;
+
       // BUG: I hope this is right, idk how else to handle the different dataflow stuff :)
       switch (typeOfUnit.at(i))
       {
       case 0:
-        std::cout << "Beginning GFU Instruction with immediate: " << temp_instr.get_immediate() << std::endl;
+        // std::cout << "Beginning GFU Instruction with immediate: " << temp_instr.get_immediate() << std::endl;
         allUnits.at(i)->processInstruction(temp_instr, TempState, TempState);
-        std::cout << "Finished instruction" << std::endl;
+        // std::cout << "Adding " << temp_instr.get_immediate() << " and " << TempState.getInterconnectValue(temp_instr.get_rs1()) << std::endl;
+        // std::cout << NextState.getRegister(temp_instr.get_rd()) << std::endl;
+        // std::cout << "Finished instruction" << std::endl;
         break;
       case 1:
         allUnits.at(i)->processInstruction(temp_instr, CurrentState, NextState);
+
         break;
       case 2:
         allUnits.at(i)->processInstruction(temp_instr, TempState, TempState);
         break;
       case 3:
         allUnits.at(i)->processInstruction(temp_instr, TempState, NextState);
+
         break;
       case 4:
         allUnits.at(i)->processInstruction(temp_instr, CurrentState, TempState);
@@ -333,6 +349,10 @@ int main(int argc, char *argv[])
     }
     instruction++;
     std::cout << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
+
     CurrentState = NextState;
     // processInstruction(instructions, Machine0);
   }

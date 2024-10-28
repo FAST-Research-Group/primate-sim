@@ -271,6 +271,7 @@ void ALU::processIType(Instruction &I, MachineState &CMS, MachineState &NMS)
     }
 
     CMS.setInterconnectValue(slotIdx, res);
+    std::cout << "SlotIdx is: " << slotIdx << std::endl;
     if (this->isConnectedToRegisterFile())
     {
         NMS.setRegister(I.get_rd(), res);

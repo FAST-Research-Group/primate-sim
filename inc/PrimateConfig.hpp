@@ -339,7 +339,8 @@ public:
       instrLayout.push_back(FunctionalUnitType::BFU);
       bfuTemp--;
     }
-    instrLayout.push_back(FunctionalUnitType::BRANCH);
+    instrLayout.insert(instrLayout.begin(), FunctionalUnitType::BRANCH);
+    // instrLayout.push_back(FunctionalUnitType::BRANCH);
     instruction_width = instrLayout.size();
   }
 

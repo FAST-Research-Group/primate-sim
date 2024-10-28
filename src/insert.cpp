@@ -37,28 +37,18 @@ void InsertUnit::processInstruction(Instruction &I, MachineState &CMS, MachineSt
 
     int shift = immediate & ((1 << clog_mode) - 1);
 
-    Register dest_value = CMS.getRegister(destination);
+    Register dest_value = CMS.getInterconnectValue(slotIdx - 1);
+    // std::cout << "OVER HERE" << std::endl;
+    // std::cout << dest_value.str(10) << std::endl;
 
-    // Potential Bug, added by Mircea
-    Register result_value;
-    if (this->isConnectedToRegisterFile())
-    {
-        result_value = CMS.getRegister(I.get_rs1());
-    }
-    else
-    {
-        result_value = CMS.getInterconnectValue(I.get_rs1());
-    }
+    Register value_to_insert = (dest_value & mask) << shift; // was source before
 
-    Register value_to_insert = (result_value & mask) << shift; // was source before
-
-    // Mircea additions end here
-    Register clear_mask = ~(((1 << mask) - 1) << shift);
+    Register clear_mask = ~(((1 << clog_size) - 1) << shift);
     dest_value &= clear_mask;
 
     dest_value |= value_to_insert;
-
-    CMS.setRegister(destination, dest_value);
+    std::cout << "Destination is: " << destination << std::endl;
+    NMS.setRegister(destination, dest_value);
 
     return;
 }

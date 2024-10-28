@@ -12,27 +12,16 @@ void ExtractUnit::processInstruction(Instruction &I, MachineState &CMS, MachineS
     {
         return;
     }
-    Register src;
+    Register src = CMS.getRegister(I.get_rs1());
+    ;
     int destination = I.get_rd();
-    // std::cout << "WE MADE IT HERE" << std::endl;
-    if (this->isConnectedToRegisterFile())
-    {
-        // std::cout << "Reading from Reg File" << std::endl;
-        src = CMS.getRegister(I.get_rs1());
-        // std::cout << "Made it past this." << std::endl;
-    }
-    else
-    {
-        // std::cout << "Reading from Interconnect" << std::endl;
-        src = CMS.getInterconnectValue(I.get_rs1());
-    }
 
     int source = I.get_rs1();
     int immediate = I.get_immediate();
     int mode_size = primateCFG.Src_Mode.size();
     int src_size = primateCFG.Src_Pos.size();
-    int clog_mode;
-    int clog_size;
+    int clog_mode = 0;
+    int clog_size = 0;
 
     while (mode_size > 0)
     {
@@ -49,11 +38,11 @@ void ExtractUnit::processInstruction(Instruction &I, MachineState &CMS, MachineS
     immediate = immediate >> clog_size;
 
     int shift = immediate & ((1 << clog_mode) - 1);
-
     Register result = (src >> shift) & mask;
     // std::cout << "Destination Register is: " << destination << " and Result is: " << result << std::endl;
     // NMS.setRegister(destination, 0);
     // std::cout << "Instruction finished. Result is:  " << NMS.getRegister(destination) << std::endl;
+    std::cout << "Setting Register " << destination << " with " << result << std::endl;
     NMS.setInterconnectValue(destination, result); // was setRegister
     // std::cout << "Instruction finished: " << NMS.getInterconnectValue(destination) << std::endl;
     return;
