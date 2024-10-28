@@ -309,7 +309,8 @@ int main(int argc, char *argv[])
       // Green - 0, Blue - 1, Merged - 2, Insert - 3, Extract - 4, Branch - 5
       // code brokie, determine how to assign to tempMachineState() for certain units
       Instruction &temp_instr = instructions.at(CurrentState.getPC()).at(i);
-      std::cout << std::hex << temp_instr.get_rawinstruction() << std::endl;
+
+      // std::cout << std::hex << temp_instr.get_rawinstruction() << std::endl;
 
       // BUG: I hope this is right, idk how else to handle the different dataflow stuff :)
       switch (typeOfUnit.at(i))
@@ -344,7 +345,7 @@ int main(int argc, char *argv[])
         throw("You messed up. BFU not added properly LOL I made this up");
         break;
       }
-      std::cout << "Executed Instruction " << instruction << " " << sub_instruction << " with Unit: " << typeOfUnit.at(i) << std::endl;
+      // std::cout << "Executed Instruction " << instruction << " " << sub_instruction << " with Unit: " << typeOfUnit.at(i) << std::endl;
       sub_instruction = sub_instruction + 1;
     }
     instruction++;
