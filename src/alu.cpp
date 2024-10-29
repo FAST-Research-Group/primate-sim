@@ -25,13 +25,14 @@ uint64_t BranchUnit::end() { return 0; }
 
 void BranchUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
+    std::cout << "BranchUnit: " << std::hex << I.get_rawinstruction() << std::endl;
     if (I.get_rawinstruction() == 19)
     {
         NMS.setPC(CMS.getPC() + 1);
         return;
     }
-    Register rs1 = CMS.getInterconnectValue(I.get_rs1()); // assumes that the registers hold the slot indexes
-    Register rs2 = CMS.getInterconnectValue(I.get_rs2());
+    Register rs1; // assumes that the registers hold the slot indexes
+    Register rs2;
     switch (I.get_type())
     {
     case Instruction::type::J:
@@ -48,6 +49,8 @@ void BranchUnit::processInstruction(Instruction &I, MachineState &CMS, MachineSt
         break;
     }
     case Instruction::type::B:
+        rs1 = CMS.getInterconnectValue(I.get_rs1());
+        rs2 = CMS.getInterconnectValue(I.get_rs2());
         switch (I.get_funct3())
         {
         case 0:
@@ -223,7 +226,9 @@ void ALU::processIType(Instruction &I, MachineState &CMS, MachineState &NMS)
     }
     else
     {
+        // std::cout << "Attempting to read: " << this->slotIdx - 2 << std::endl;
         op1 = CMS.getInterconnectValue(this->slotIdx - 2);
+        // std::cout << "OP1 is read" << std::endl;
     }
 
     switch (I.get_funct3())
@@ -348,6 +353,11 @@ void ALU::processUType(Instruction &I, MachineState &CMS, MachineState &NMS)
 // Process the instruction based on its opcode
 void ALU::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
+    std::cout << "ALU: " << std::hex << I.get_rawinstruction() << std::endl;
+    if (I.get_rawinstruction() == 19)
+    {
+        return;
+    }
     switch (I.get_opcode())
     {
     case 0x33:                     // R-type instructions

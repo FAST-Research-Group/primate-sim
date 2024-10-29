@@ -7,6 +7,7 @@ ExtractUnit::~ExtractUnit() {}
 
 void ExtractUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
+    std::cout << "Extract: " << std::hex << I.get_rawinstruction() << std::endl;
     if (I.get_rawinstruction() == 19)
     {
         return;
@@ -39,6 +40,7 @@ void ExtractUnit::processInstruction(Instruction &I, MachineState &CMS, MachineS
 
     Register result = (src >> shift) & mask;
     CMS.setInterconnectValue(this->slotIdx, result);
+    // std::cout << "Writing: " << result << " to: " << this->slotIdx << std::endl;
 
     return;
 }

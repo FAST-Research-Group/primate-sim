@@ -14,6 +14,7 @@
 #include "extract.hpp"
 #include "MergedUnit.hpp"
 #include "Generated/BFUFactory.hpp"
+#include "Insert.hpp"
 
 // using namespace std removed; it was still here
 
@@ -111,8 +112,13 @@ std::vector<std::vector<Instruction>> read(const std::string &filename, PrimateC
 
     if (CurPacket.size() >= primateCfg.instruction_width)
     {
+      // the line below reverses the order of instructions which isn't how the functional units are lined up
       std::reverse(CurPacket.begin(), CurPacket.end());
       VLIW.push_back(CurPacket);
+      for (int i = 0; i < CurPacket.size(); i++)
+      {
+        // std::cout << CurPacket.at(i).get_rawinstruction() << std::endl;
+      }
       CurPacket.clear();
     }
 
@@ -162,7 +168,7 @@ void get_data(Instruction dat)
 int main(int argc, char *argv[])
 {
   // error if wrong amount of arguments arguments
-  if (argc != 3)
+  if (argc != 4)
   {
     std::cerr << "Usage: " << argv[0] << " <path to program.bin> <path to primate.cfg> <path to BFUListsPath>" << std::endl;
     return 1;
@@ -181,7 +187,6 @@ int main(int argc, char *argv[])
   std::vector<std::vector<Instruction>> instructions = read(filePath_instruction, primateCfg);
 
   std::vector<std::unique_ptr<FunctionalUnit>> allUnits;
-
   int slotIdx = 0;
   auto bfuNameIter = primateCfg.getBFUNames().begin();
   for (auto &slotType : primateCfg.instrLayout)
@@ -190,16 +195,24 @@ int main(int argc, char *argv[])
     {
     case PrimateConfig::FunctionalUnitType::BRANCH:
       allUnits.push_back(std::make_unique<BranchUnit>(false, slotIdx));
+      break;
     case PrimateConfig::FunctionalUnitType::BFU:
       allUnits.push_back(createBFU(*bfuNameIter, true, slotIdx));
       bfuNameIter++;
+      break;
     case PrimateConfig::FunctionalUnitType::GFU:
       allUnits.push_back(std::make_unique<ALU>(false, slotIdx));
+      break;
     case PrimateConfig::FunctionalUnitType::MERGED:
       allUnits.push_back(std::make_unique<MergedUnit>(createBFU(*bfuNameIter, false, slotIdx), std::make_unique<ALU>(false, slotIdx), false, slotIdx));
       bfuNameIter++;
+      break;
     case PrimateConfig::FunctionalUnitType::EXTRACT:
+      allUnits.push_back(std::make_unique<ExtractUnit>(primateCfg, true, slotIdx));
+      break;
     case PrimateConfig::FunctionalUnitType::INSERT:
+      allUnits.push_back(std::make_unique<InsertUnit>(primateCfg, true, slotIdx));
+      break;
     default:
       assert(false && "unknown functional unit type (if you added a new unit add it to main.cpp)");
     }
@@ -213,29 +226,29 @@ int main(int argc, char *argv[])
 
   // Throw warnings if same destination
   // If statement necessary in order to make sure that I don't get an out of range exception from the nested for loopss
-  if (instructions.size() >= 2)
+  for (int i = 0; i < instructions.size(); i++)
   {
-    for (auto &instr : instructions)
+    std::set<int> CurrentDestinations;
+
+    for (int j = 1; j < instructions.at(i).size(); j++)
     {
-      std::unordered_set<int> destRegs;
-      for (auto &subInstr : instr)
+      int destination = instructions.at(i).at(j).get_rawinstruction();
+      if (destination == 19)
       {
-        int rd = subInstr.get_rd();
-        if (destRegs.find(rd) == destRegs.end())
-        {
-          destRegs.insert(rd);
-        }
-        else
-        {
-          auto instrIter = std::find(instructions.begin(), instructions.end(), instr);
-          std::cout << "WARNING: Two subinstrs write to same reg in Instr: "
-                    << std::distance(instructions.begin(), instrIter)
-                    << " dest reg: " << rd
-                    << "\n";
-        }
+        continue;
       }
+
+      if (CurrentDestinations.count(destination))
+      {
+        std::cout << "Duplicate entry found at instruction " << i << ". Rd = " << instructions.at(i).at(j).get_rd() << std::endl;
+      }
+      CurrentDestinations.insert(destination);
     }
   }
+  std::cout << "Finished Destination Register Collision Check" << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
 
   while (CurrentState.running)
   {

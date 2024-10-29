@@ -9,9 +9,10 @@ InsertUnit::~InsertUnit() {}
 
 void InsertUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
+    std::cout << "Insert: " << std::hex << I.get_rawinstruction() << std::endl;
     if (I.get_opcode() == 19)
     {
-        std::cout << "Should be a blue functional unit; otherwise, code brokie. No actual assertion here" << std::endl;
+        // std::cout << "Should be a blue functional unit; otherwise, code brokie. No actual assertion here" << std::endl;
         return;
     }
     int destination = I.get_rd();               // rd
@@ -38,7 +39,13 @@ void InsertUnit::processInstruction(Instruction &I, MachineState &CMS, MachineSt
 
     int shift = immediate & ((1 << clog_mode) - 1);
 
+    // std::cout << std::endl;
+    // std::cout << "Attempting to Read Interconnect val at: " << slotIdx - 1 << std::endl;
     Register dest_value = CMS.getInterconnectValue(slotIdx - 1);
+    // std::cout << "Read the interconnect value" << std::endl;
+    // std::cout << std::endl;
+    // std::cout << std::endl;
+    // std::cout << std::endl;
 
     Register value_to_insert = (dest_value & mask) << shift;
 
@@ -46,6 +53,6 @@ void InsertUnit::processInstruction(Instruction &I, MachineState &CMS, MachineSt
     dest_value &= clear_mask;
 
     dest_value |= value_to_insert;
-    // std::cout << "Destination is: " << destination << std::endl; // Helps with debugging
+    // std::cout << "Finished insert" << destination << std::endl; // Helps with debugging
     NMS.setRegister(destination, dest_value);
 }
