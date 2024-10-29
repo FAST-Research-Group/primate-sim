@@ -25,6 +25,11 @@ uint64_t BranchUnit::end() { return 0; }
 
 void BranchUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
+    if (I.get_rawinstruction() == 19)
+    {
+        NMS.setPC(CMS.getPC() + 1);
+        return;
+    }
     Register rs1 = CMS.getInterconnectValue(I.get_rs1()); // assumes that the registers hold the slot indexes
     Register rs2 = CMS.getInterconnectValue(I.get_rs2());
     switch (I.get_type())
