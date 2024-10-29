@@ -1,11 +1,11 @@
 #include <stdint.h>
 #include "extract.hpp"
 
-InsertUnit::InsertUnit(PrimateConfig cfg, bool reg, unsigned slot) : primateCFG(cfg), FunctionalUnit(reg, slot) {}
+ExtractUnit::ExtractUnit(PrimateConfig cfg, bool reg, unsigned slot) : primateCFG(cfg), FunctionalUnit(reg, slot) {}
 
-InsertUnit::~InsertUnit() {}
+ExtractUnit::~ExtractUnit() {}
 
-void InsertUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
+void ExtractUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
     if (I.get_rawinstruction() == 19)
     {

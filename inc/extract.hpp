@@ -2,13 +2,13 @@
 #include "FunctionalUnit.hpp"
 #include "PrimateConfig.hpp"
 
-class InsertUnit : public FunctionalUnit
+class ExtractUnit : public FunctionalUnit
 {
 private:
     PrimateConfig primateCFG;
 
 public:
-    InsertUnit(PrimateConfig cfg, bool, unsigned);
-    virtual ~InsertUnit();
+    ExtractUnit(PrimateConfig cfg, bool, unsigned);
+    virtual ~ExtractUnit();
     void processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS) override;
 };
