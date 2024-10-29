@@ -24,5 +24,5 @@ To build the files, follow these steps
 - `cd build`
 - `cmake ../`
 - `cd src`
-- `make`
+- `make
 - executable should now be in `build/src`
