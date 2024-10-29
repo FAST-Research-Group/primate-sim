@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "alu.hpp"
 
-BranchUnit::BranchUnit(bool reg, unsigned slot): FunctionalUnit(reg, slot) { pc = 0; }
+BranchUnit::BranchUnit(bool reg, unsigned slot) : FunctionalUnit(reg, slot) { pc = 0; }
 
 BranchUnit::~BranchUnit() {}
 
@@ -25,7 +25,7 @@ uint64_t BranchUnit::end() { return 0; }
 
 void BranchUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
-    Register rs1 = CMS.getInterconnectValue(I.get_rs1());
+    Register rs1 = CMS.getInterconnectValue(I.get_rs1()); // assumes that the registers hold the slot indexes
     Register rs2 = CMS.getInterconnectValue(I.get_rs2());
     switch (I.get_type())
     {
@@ -63,7 +63,7 @@ void BranchUnit::processInstruction(Instruction &I, MachineState &CMS, MachineSt
     }
 }
 
-ALU::ALU(bool reg, unsigned slot): FunctionalUnit(reg, slot) { pc = 0; }
+ALU::ALU(bool reg, unsigned slot) : FunctionalUnit(reg, slot) { pc = 0; }
 
 ALU::~ALU() {}
 
@@ -145,15 +145,17 @@ void ALU::processRType(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
     Register op1, op2;
     Register res;
-    // if not connect to regfile we should 
+    // if not connect to regfile we should
     // goto interconnect
-    if(this->isConnectedToRegisterFile()) {
+    if (this->isConnectedToRegisterFile())
+    {
         op1 = CMS.getRegister(I.get_rs1());
         op2 = CMS.getRegister(I.get_rs2());
     }
-    else {
-        op1 = CMS.getInterconnectValue(I.get_rs1());
-        op2 = CMS.getInterconnectValue(I.get_rs2());
+    else
+    {
+        op1 = CMS.getInterconnectValue(this->slotIdx - 2);
+        op2 = CMS.getInterconnectValue(this->slotIdx - 1);
     }
 
     switch (I.get_funct3())
@@ -199,7 +201,8 @@ void ALU::processRType(Instruction &I, MachineState &CMS, MachineState &NMS)
     }
 
     CMS.setInterconnectValue(slotIdx, res);
-    if(this->isConnectedToRegisterFile()) {
+    if (this->isConnectedToRegisterFile())
+    {
         NMS.setRegister(I.get_rd(), res);
     }
 }
@@ -209,11 +212,13 @@ void ALU::processIType(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
     Register op1;
     Register res;
-    if(this->isConnectedToRegisterFile()) {
+    if (this->isConnectedToRegisterFile())
+    {
         op1 = CMS.getRegister(I.get_rs1());
     }
-    else {
-        op1 = CMS.getInterconnectValue(I.get_rs1());
+    else
+    {
+        op1 = CMS.getInterconnectValue(this->slotIdx - 2);
     }
 
     switch (I.get_funct3())
@@ -260,7 +265,8 @@ void ALU::processIType(Instruction &I, MachineState &CMS, MachineState &NMS)
     }
 
     CMS.setInterconnectValue(slotIdx, res);
-    if(this->isConnectedToRegisterFile()) {
+    if (this->isConnectedToRegisterFile())
+    {
         NMS.setRegister(I.get_rd(), res);
     }
 }
@@ -270,17 +276,18 @@ void ALU::processSType(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
     Register op1, op2;
     Register res;
-    // if not connect to regfile we should 
+    // if not connect to regfile we should
     // goto interconnect
-    if(this->isConnectedToRegisterFile()) {
+    if (this->isConnectedToRegisterFile())
+    {
         op1 = CMS.getRegister(I.get_rs1());
         op2 = CMS.getRegister(I.get_rs2());
     }
-    else {
-        op1 = CMS.getInterconnectValue(I.get_rs1());
-        op2 = CMS.getInterconnectValue(I.get_rs2());
+    else
+    {
+        op1 = CMS.getInterconnectValue(this->slotIdx - 2);
+        op2 = CMS.getInterconnectValue(this->slotIdx - 1);
     }
-
 
     Register address = op1 + I.get_immediate();
     switch (I.get_funct3())
@@ -302,7 +309,8 @@ void ALU::processSType(Instruction &I, MachineState &CMS, MachineState &NMS)
         break;
     }
     CMS.setInterconnectValue(slotIdx, res);
-    if(this->isConnectedToRegisterFile()) {
+    if (this->isConnectedToRegisterFile())
+    {
         NMS.setRegister(I.get_rd(), res);
     }
 }
@@ -326,7 +334,8 @@ void ALU::processUType(Instruction &I, MachineState &CMS, MachineState &NMS)
         break;
     }
     CMS.setInterconnectValue(slotIdx, res);
-    if(this->isConnectedToRegisterFile()) {
+    if (this->isConnectedToRegisterFile())
+    {
         NMS.setRegister(I.get_rd(), res);
     }
 }
@@ -336,25 +345,25 @@ void ALU::processInstruction(Instruction &I, MachineState &CMS, MachineState &NM
 {
     switch (I.get_opcode())
     {
-    case 0x33: // R-type instructions
-        processRType(I, CMS, NMS);
+    case 0x33:                     // R-type instructions
+        processRType(I, CMS, NMS); // reads from interconnect properly
         break;
-    case 0x13: // I-type instructions
-        processIType(I, CMS, NMS);
+    case 0x13:                     // I-type instructions
+        processIType(I, CMS, NMS); // reads from interconnect properly
         break;
     case 0x03: // I-type load instructions (for load, use the same function but
                // add a switch case for OPCODE_LOAD)
         // Handle load instruction here
         break;
-    case 0x23: // S-type instructions (store)
-        processSType(I, CMS, NMS);
+    case 0x23:                     // S-type instructions (store)
+        processSType(I, CMS, NMS); // reads from interconnect properly
         break;
     case 0x63: // B-type instructions (branch)
         // processBType(I, MS); brokie
         break;
-    case 0x37: // U-type instructions (LUI)
-    case 0x17: // U-type instructions (AUIPC)
-        processUType(I, CMS, NMS);
+    case 0x37:                     // U-type instructions (LUI)
+    case 0x17:                     // U-type instructions (AUIPC)
+        processUType(I, CMS, NMS); // this doesn't read from interconnect, better have NOPS
         break;
     case 0x6F: // J-type instructions (JAL)
         // Add processing for JAL
@@ -363,7 +372,7 @@ void ALU::processInstruction(Instruction &I, MachineState &CMS, MachineState &NM
         // Add processing for JALR
         break;
     default:
-        std::cerr << "Unknown opcode: " << I.get_opcode() << std::endl;
+        std::cerr << "Unknown opcode for GFU: " << I.get_opcode() << std::endl;
         break;
     }
 }
