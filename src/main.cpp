@@ -88,6 +88,7 @@ int stringToBinary(std::string test)
 
 std::vector<std::vector<Instruction>> read(const std::string &filename, PrimateConfig primateCfg)
 {
+
   std::vector<std::vector<Instruction>> VLIW;
   std::vector<Instruction> CurPacket;
 
@@ -109,7 +110,6 @@ std::vector<std::vector<Instruction>> read(const std::string &filename, PrimateC
       std::cout << "warning: empty line in program LINE: " << line_no;
       continue;
     }
-
     if (CurPacket.size() >= primateCfg.instruction_width)
     {
       // the line below reverses the order of instructions which isn't how the functional units are lined up
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
     }
     slotIdx++;
   }
-
+  // std::cout << "NUM UNITS: " << allUnits.size() << std::endl; // used for debugging
   // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
   MachineState CurrentState(0, primateCfg), NextState(0, primateCfg);
 
