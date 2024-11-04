@@ -25,7 +25,7 @@ uint64_t BranchUnit::end() { return 0; }
 
 void BranchUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
-    std::cout << "BranchUnit: " << std::hex << I.get_rawinstruction() << std::endl;
+    // std::cout << "BranchUnit: " << std::hex << I.get_rawinstruction() << std::endl; // Used for debugging
     if (I.get_rawinstruction() == 19)
     {
         NMS.setPC(CMS.getPC() + 1);
@@ -37,8 +37,8 @@ void BranchUnit::processInstruction(Instruction &I, MachineState &CMS, MachineSt
     {
     case Instruction::type::J:
     {
-        std::cout << "found a jump with target: " << std::hex << I.get_immediate() << "\n"
-                  << std::dec;
+        // std::cout << "found a jump with target: " << std::hex << I.get_immediate() << "\n"
+        // << std::dec;
         if (I.get_immediate() == -1)
         {
             NMS.halt();
@@ -55,19 +55,26 @@ void BranchUnit::processInstruction(Instruction &I, MachineState &CMS, MachineSt
         {
         case 0:
             (I.get_rs1() == I.get_rs2()) ? NMS.setPC(CMS.getPC() + I.get_immediate()) : NMS.setPC(CMS.getPC() + 1);
+            break;
         case 1:
             (I.get_rs1() != I.get_rs2()) ? NMS.setPC(CMS.getPC() + I.get_immediate()) : NMS.setPC(CMS.getPC() + 1);
+            break;
         case 4:
             (I.get_rs1() < I.get_rs2()) ? NMS.setPC(CMS.getPC() + I.get_immediate()) : NMS.setPC(CMS.getPC() + 1);
+            break;
         case 6:
             (((unsigned)I.get_rs1()) < ((unsigned)I.get_rs2())) ? NMS.setPC(CMS.getPC() + I.get_immediate()) : NMS.setPC(CMS.getPC() + 1);
+            break;
         case 5:
             (I.get_rs1() >= I.get_rs2()) ? NMS.setPC(CMS.getPC() + I.get_immediate()) : NMS.setPC(CMS.getPC() + 1);
+            break;
         case 7:
             (((unsigned)I.get_rs1()) >= ((unsigned)I.get_rs2())) ? NMS.setPC(CMS.getPC() + I.get_immediate()) : NMS.setPC(CMS.getPC() + 1);
+            break;
         }
     default:
-        NMS.setPC(CMS.getPC() + 1);
+        std::cerr << "No supported branch instruction for given Opcode" << std::endl;
+        // NMS.setPC(CMS.getPC() + 1);
     }
 }
 
@@ -259,12 +266,12 @@ void ALU::processIType(Instruction &I, MachineState &CMS, MachineState &NMS)
         {
             res = srai(op1, I.get_immediate());
 
-            std::cout << "Executing srai" << std::endl;
+            // std::cout << "Executing srai" << std::endl;
         }
         else
         {
             res = srli(op1, I.get_immediate());
-            std::cout << "Executing srli" << std::endl;
+            // std::cout << "Executing srli" << std::endl;
         }
         break;
     // Handle other I-type instructions...
@@ -353,7 +360,7 @@ void ALU::processUType(Instruction &I, MachineState &CMS, MachineState &NMS)
 // Process the instruction based on its opcode
 void ALU::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
-    std::cout << "ALU: " << std::hex << I.get_rawinstruction() << std::endl;
+    // std::cout << "ALU: " << std::hex << I.get_rawinstruction() << std::endl; // Used for debugging
     if (I.get_rawinstruction() == 19)
     {
         return;
