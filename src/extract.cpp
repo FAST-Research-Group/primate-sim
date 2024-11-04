@@ -7,7 +7,7 @@ ExtractUnit::~ExtractUnit() {}
 
 void ExtractUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
-    std::cout << "Extract: " << std::hex << I.get_rawinstruction() << std::endl;
+    // std::cout << "Extract: " << std::hex << I.get_rawinstruction() << std::endl; // Used for debugging
     if (I.get_rawinstruction() == 19)
     {
         return;
@@ -18,7 +18,7 @@ void ExtractUnit::processInstruction(Instruction &I, MachineState &CMS, MachineS
     int source = I.get_rs1();
     int immediate = I.get_immediate();
     int mode_size = primateCFG.Src_Mode.size();
-    int src_size = primateCFG.Src_Pos.size();
+    int pos_size = primateCFG.Src_Pos.size();
     int clog_mode;
     int clog_size;
 
@@ -27,16 +27,23 @@ void ExtractUnit::processInstruction(Instruction &I, MachineState &CMS, MachineS
         clog_mode++;
         mode_size = mode_size >> 1;
     }
-    while (src_size > 0)
+    while (pos_size > 0)
     {
         clog_size++;
-        src_size = src_size >> 1;
+        pos_size = pos_size >> 1;
     }
-    // this is wrong. Should be the value at I.get_rs1() not the actual register number
-    int mask = immediate & ((1 << clog_size) - 1);
-    immediate = immediate >> clog_size;
+    int src_mode_bits = (1 << clog_mode) - 1;
+    int src_pos_bits = (1 << clog_size) - 1;
 
-    int shift = immediate & ((1 << clog_mode) - 1);
+    int INDEX_MODE = immediate & src_mode_bits;
+    int INDEX_POS = (immediate >> clog_mode) & src_pos_bits;
+
+    int NUM_MASK_BITS = primateCFG.Src_Mode.at(INDEX_MODE);
+    int mask = (1 << NUM_MASK_BITS) - 1;
+
+    int shift = primateCFG.Src_Pos.at(INDEX_POS);
+
+    // this is wrong. Should be the value at I.get_rs1() not the actual register number
 
     Register result = (src >> shift) & mask;
     CMS.setInterconnectValue(this->slotIdx, result);
