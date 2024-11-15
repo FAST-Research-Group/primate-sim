@@ -23,4 +23,6 @@ To build the files, follow these steps
 - `mkdir build`
 - `cd build`
 - `cmake ../`
+- `cd src`
+- `make`
 - executable should now be in `build/src`

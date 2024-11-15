@@ -13,7 +13,7 @@
 
 struct MachineState
 {
-  PrimateConfig& configFile;
+  PrimateConfig &configFile;
   std::vector<Register> registerFile;
   std::vector<std::pair<bool, Register>> interconnect;
   std::map<uint64_t, Register> memory;
@@ -23,17 +23,18 @@ struct MachineState
 
   void halt();
 
-  MachineState(uint64_t starting_addr, PrimateConfig& cfg): interconnect(cfg.instruction_width, std::make_pair<bool, Register>(false, 0)), 
-                                                            registerFile(0, cfg.Num_Regs), 
-                                                            pc(starting_addr),
-                                                            running(true),
-                                                            configFile(cfg) {};
-  MachineState(const MachineState& other): configFile(other.configFile),
-                                           registerFile(other.registerFile), 
-                                           memory(other.memory), 
-                                           pc(other.pc), running(other.running),
-                                           interconnect(configFile.instruction_width, std::make_pair<bool, Register>(false, 0)) {}
-  MachineState& operator=(const MachineState& other) {
+  MachineState(uint64_t starting_addr, PrimateConfig &cfg) : interconnect(cfg.instruction_width, std::make_pair<bool, Register>(false, 0)),
+                                                             registerFile(cfg.Num_Regs),
+                                                             pc(starting_addr),
+                                                             running(true),
+                                                             configFile(cfg) {};
+  MachineState(const MachineState &other) : configFile(other.configFile),
+                                            registerFile(other.registerFile),
+                                            memory(other.memory),
+                                            pc(other.pc), running(other.running),
+                                            interconnect(configFile.instruction_width, std::make_pair<bool, Register>(false, 0)) {}
+  MachineState &operator=(const MachineState &other)
+  {
     registerFile = other.registerFile;
     configFile = other.configFile;
     memory = other.memory;
@@ -44,12 +45,14 @@ struct MachineState
     return *this;
   }
 
-  Register getInterconnectValue(uint64_t registerIdx) {
-    auto& ret = interconnect[registerIdx];
+  Register getInterconnectValue(uint64_t registerIdx)
+  {
+    auto &ret = interconnect[registerIdx];
     assert(ret.first && "Reading from an uninited interconnect slot!!!");
     return ret.second;
   }
-  void setInterconnectValue(uint64_t registerIdx, Register val) {
+  void setInterconnectValue(uint64_t registerIdx, Register val)
+  {
     interconnect[registerIdx] = {true, val};
   }
 
