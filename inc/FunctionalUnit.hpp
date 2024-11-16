@@ -8,7 +8,7 @@ class FunctionalUnit
   bool consumeRegfile;
 
 public:
-  unsigned slotIdx;
+  int slotIdx;
   FunctionalUnit(bool cRF, unsigned SI) : consumeRegfile(cRF), slotIdx(SI) {}
   virtual ~FunctionalUnit() {}
 
