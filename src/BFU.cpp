@@ -11,5 +11,14 @@ std::string BFU::getName()
 
 void BFU::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
-    indexToFunction[this->slotIdx](I, CMS, NMS);
+    int index;
+    if (!(this->isConnectedToRegisterFile()))
+    {
+        index = this->slotIdx - 2;
+    }
+    else
+    {
+        index = -1;
+    }
+    indexToFunction[this->slotIdx](I, CMS, NMS, index);
 }
