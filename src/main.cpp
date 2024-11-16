@@ -16,6 +16,14 @@
 #include "Generated/BFUFactory.hpp"
 #include "Insert.hpp"
 
+#include "../Experimental Generator/BFUInstructions.cpp"
+
+// these are the maps where the generated BFU instructions will go to
+// for verification as well as to call by processInstruction in BFU class
+extern std::map<int, void (*)(Instruction &I, MachineState &CMS, MachineState &NMS)> indexToFunction;
+std::map<void (*)(Instruction &I, MachineState &CMS, MachineState &NMS), std::string> functionToName;
+std::map<std::string, int> nameToIndex;
+
 // using namespace std removed; it was still here
 
 // stringToBinary function is used since issues with stoi staying in 32 bits
@@ -173,6 +181,40 @@ int main(int argc, char *argv[])
     std::cerr << "Usage: " << argv[0] << " <path to program.bin> <path to primate.cfg> <path to BFUListsPath>" << std::endl;
     return 1;
   }
+
+  /*
+   * The code below are three chained maps to ensure that the BFU instructions
+   * are mapped to their proper index
+   */
+
+  // Call the function to populate the maps
+  generateMaps(indexToFunction, functionToName, nameToIndex);
+
+  // Validate the mappings
+  for (const auto &[index, functionPtr] : indexToFunction)
+  {
+    // Retrieve the name from the function pointer
+    std::string name = functionToName[functionPtr];
+
+    // Retrieve the index from the name
+    int derivedIndex = nameToIndex[name];
+
+    // Assert consistency
+    assert(index == derivedIndex && "Index mismatch in the mappings!");
+    assert(indexToFunction[derivedIndex] == functionPtr && "Function pointer mismatch in the mappings!");
+    assert(functionToName[indexToFunction[derivedIndex]] == name && "Name mismatch in the mappings!");
+
+    // Optional: Print details for debugging
+    // std::cout << "Index: " << index
+    //           << ", Function Pointer: " << functionPtr
+    //           << ", Name: " << name
+    //           << ", Derived Index: " << derivedIndex
+    //           << " [Valid]" << std::endl;
+  }
+
+  std::cout << "All mappings are consistent and validated." << std::endl;
+
+  /* The added code ends here*/
 
   std::string filePath_instruction = argv[1];
   std::string filePath_config = argv[2];
