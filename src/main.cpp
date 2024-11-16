@@ -22,7 +22,7 @@
 // for verification as well as to call by processInstruction in BFU class
 extern std::map<int, void (*)(Instruction &I, MachineState &CMS, MachineState &NMS)> indexToFunction;
 std::map<void (*)(Instruction &I, MachineState &CMS, MachineState &NMS), std::string> functionToName;
-std::map<std::string, int> nameToIndex;
+extern std::map<std::string, int> nameToIndex;
 
 // using namespace std removed; it was still here
 
@@ -231,6 +231,7 @@ int main(int argc, char *argv[])
   std::vector<std::unique_ptr<FunctionalUnit>> allUnits;
   int slotIdx = 0;
   auto bfuNameIter = primateCfg.getBFUNames().begin();
+
   for (auto &slotType : primateCfg.instrLayout)
   {
     switch (slotType)
@@ -239,14 +240,18 @@ int main(int argc, char *argv[])
       allUnits.push_back(std::make_unique<BranchUnit>(false, slotIdx));
       break;
     case PrimateConfig::FunctionalUnitType::BFU:
-      allUnits.push_back(createBFU(*bfuNameIter, true, slotIdx));
+
+      allUnits.push_back(std::make_unique<BFU>(*bfuNameIter, true, slotIdx));
+
+      // allUnits.push_back(createBFU(*bfuNameIter, true, slotIdx));
       bfuNameIter++;
       break;
     case PrimateConfig::FunctionalUnitType::GFU:
       allUnits.push_back(std::make_unique<ALU>(false, slotIdx));
       break;
     case PrimateConfig::FunctionalUnitType::MERGED:
-      allUnits.push_back(std::make_unique<MergedUnit>(createBFU(*bfuNameIter, false, slotIdx), std::make_unique<ALU>(false, slotIdx), false, slotIdx));
+      allUnits.push_back(std::make_unique<MergedUnit>(std::make_unique<BFU>(*bfuNameIter, false, slotIdx), std::make_unique<ALU>(false, slotIdx), false, slotIdx));
+      // allUnits.push_back(std::make_unique<MergedUnit>(createBFU(*bfuNameIter, false, slotIdx), std::make_unique<ALU>(false, slotIdx), false, slotIdx));
       bfuNameIter++;
       break;
     case PrimateConfig::FunctionalUnitType::EXTRACT:
