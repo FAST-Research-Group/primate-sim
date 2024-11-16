@@ -100,8 +100,8 @@ int main(int argc, char *argv[])
     outfile << R"cpp(
 
 extern "C" void generateMaps(
-    std::map<int, void (*)(Instruction &I, MachineState &CMS, MachineState &NMS)> &indexToFunction,
-    std::map<void (*)(Instruction &I, MachineState &CMS, MachineState &NMS), std::string> &functionToName,
+    std::map<int, void (*)(Instruction &I, MachineState &CMS, MachineState &NMS, int &index)> &indexToFunction,
+    std::map<void (*)(Instruction &I, MachineState &CMS, MachineState &NMS, int &index), std::string> &functionToName,
     std::map<std::string, int> &nameToIndex
 ) {
 )cpp";
