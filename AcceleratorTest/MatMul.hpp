@@ -25,4 +25,4 @@ namespace MatMul
 
 } // namespace MatMul
 
-#endif // MATMUL_H
+#endif
