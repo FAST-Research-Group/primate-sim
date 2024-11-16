@@ -108,13 +108,13 @@ namespace MatMul
 
     void processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
     {
-        matrices result = Reg2struct(CMS.getInterconnectValue(this->slotIdx - 2)); // this should be where rs1 is extracted to
+        matrices result = Reg2struct(CMS.getRegister(I.get_rs1())); // this should be where rs1 is extracted to
 
         matrixMultiply(result.weightsPTR, result.inputPTR, result.activationPTR, result.m1r, result.m1c, result.m2r, result.m2c);
 
         Register output = struct2Reg(result);
 
-        NMS.setInterconnectValue(this->slotIdx, output);
+        NMS.setRegister(I.get_rd(), output);
     }
 
 }
