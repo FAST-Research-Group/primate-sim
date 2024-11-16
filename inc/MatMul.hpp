@@ -1,16 +1,28 @@
-// THIS FILE IS A TEST OF WHAT I THINK A USER'S CODE SHOULD LOOK LIKE WHEN FEEDING IT INTO PRIMATE
+#ifndef MATMUL_H
+#define MATMUL_H
+#include "../inc/Instruction.hpp"
+#include "../inc/MachineState.hpp"
 
-#pragma once
-#include "FunctionalUnit.hpp"
-#include "PrimateConfig.hpp"
-
-class MatMul : public FunctionalUnit
+// this will need to be changed since I don't know what primate actually compiles
+namespace MatMul
 {
-private:
-    PrimateConfig primateCFG;
+    typedef struct matrixes
+    {
+        float **weightsPTR;
+        float **inputPTR;
+        float **activationPTR;
+        int m1r, m1c, m2r, m2c;
+    } matrices;
 
-public:
-    MatMul(PrimateConfig cfg, bool, unsigned);
-    virtual ~MatMul();
-    void processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS) override;
-};
+    // Function declarations
+    void processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS);
+    void (*getFunctionPTR())(Instruction &, MachineState &, MachineState &, int &);
+
+    Register struct2Reg(const matrices &mat);
+    matrices Reg2struct(const Register &packedData);
+    float **createMatrix(int rows, int columns);
+    void freeMatrix(float **matrix, int rows);
+
+} // namespace MatMul
+
+#endif
