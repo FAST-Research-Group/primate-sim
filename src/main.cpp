@@ -20,9 +20,9 @@
 
 // these are the maps where the generated BFU instructions will go to
 // for verification as well as to call by processInstruction in BFU class
-extern std::map<int, void (*)(Instruction &I, MachineState &CMS, MachineState &NMS, int &index)> indexToFunction;
+std::map<int, void (*)(Instruction &I, MachineState &CMS, MachineState &NMS, int &index)> indexToFunction;
 std::map<void (*)(Instruction &I, MachineState &CMS, MachineState &NMS, int &index), std::string> functionToName;
-extern std::map<std::string, int> nameToIndex;
+std::map<std::string, int> nameToIndex;
 
 // using namespace std removed; it was still here
 

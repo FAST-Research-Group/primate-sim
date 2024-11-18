@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     // Write the function definition
     outfile << R"cpp(
 
-extern "C" void generateMaps(
+void generateMaps(
     std::map<int, void (*)(Instruction &I, MachineState &CMS, MachineState &NMS, int &index)> &indexToFunction,
     std::map<void (*)(Instruction &I, MachineState &CMS, MachineState &NMS, int &index), std::string> &functionToName,
     std::map<std::string, int> &nameToIndex
