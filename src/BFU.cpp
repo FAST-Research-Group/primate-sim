@@ -20,5 +20,5 @@ void BFU::processInstruction(Instruction &I, MachineState &CMS, MachineState &NM
     {
         index = -1;
     }
-    indexToFunction[this->slotIdx](I, CMS, NMS, index);
+    indexToFunction[nameToIndex[getName()]](I, CMS, NMS, index);
 }
