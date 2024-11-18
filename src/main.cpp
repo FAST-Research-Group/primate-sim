@@ -16,6 +16,14 @@
 #include "Generated/BFUFactory.hpp"
 #include "Insert.hpp"
 
+#include "../Experimental Generator/BFUInstructions.cpp"
+
+// these are the maps where the generated BFU instructions will go to
+// for verification as well as to call by processInstruction in BFU class
+std::map<int, void (*)(Instruction &I, MachineState &CMS, MachineState &NMS, int &index)> indexToFunction;
+std::map<void (*)(Instruction &I, MachineState &CMS, MachineState &NMS, int &index), std::string> functionToName;
+std::map<std::string, int> nameToIndex;
+
 // using namespace std removed; it was still here
 
 // stringToBinary function is used since issues with stoi staying in 32 bits
@@ -174,6 +182,40 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+  /*
+   * The code below are three chained maps to ensure that the BFU instructions
+   * are mapped to their proper index
+   */
+
+  // Call the function to populate the maps
+  generateMaps(indexToFunction, functionToName, nameToIndex);
+
+  // Validate the mappings
+  for (const auto &[index, functionPtr] : indexToFunction)
+  {
+    // Retrieve the name from the function pointer
+    std::string name = functionToName[functionPtr];
+
+    // Retrieve the index from the name
+    int derivedIndex = nameToIndex[name];
+
+    // Assert consistency
+    assert(index == derivedIndex && "Index mismatch in the mappings!");
+    assert(indexToFunction[derivedIndex] == functionPtr && "Function pointer mismatch in the mappings!");
+    assert(functionToName[indexToFunction[derivedIndex]] == name && "Name mismatch in the mappings!");
+
+    // Optional: Print details for debugging
+    // std::cout << "Index: " << index
+    //           << ", Function Pointer: " << functionPtr
+    //           << ", Name: " << name
+    //           << ", Derived Index: " << derivedIndex
+    //           << " [Valid]" << std::endl;
+  }
+
+  std::cout << "All mappings are consistent and validated." << std::endl;
+
+  /* The added code ends here*/
+
   std::string filePath_instruction = argv[1];
   std::string filePath_config = argv[2];
   std::string BFUListsPath = argv[3];
@@ -189,6 +231,7 @@ int main(int argc, char *argv[])
   std::vector<std::unique_ptr<FunctionalUnit>> allUnits;
   int slotIdx = 0;
   auto bfuNameIter = primateCfg.getBFUNames().begin();
+
   for (auto &slotType : primateCfg.instrLayout)
   {
     switch (slotType)
@@ -197,14 +240,18 @@ int main(int argc, char *argv[])
       allUnits.push_back(std::make_unique<BranchUnit>(false, slotIdx));
       break;
     case PrimateConfig::FunctionalUnitType::BFU:
-      allUnits.push_back(createBFU(*bfuNameIter, true, slotIdx));
+
+      allUnits.push_back(std::make_unique<BFU>(*bfuNameIter, true, slotIdx));
+
+      // allUnits.push_back(createBFU(*bfuNameIter, true, slotIdx));
       bfuNameIter++;
       break;
     case PrimateConfig::FunctionalUnitType::GFU:
       allUnits.push_back(std::make_unique<ALU>(false, slotIdx));
       break;
     case PrimateConfig::FunctionalUnitType::MERGED:
-      allUnits.push_back(std::make_unique<MergedUnit>(createBFU(*bfuNameIter, false, slotIdx), std::make_unique<ALU>(false, slotIdx), false, slotIdx));
+      allUnits.push_back(std::make_unique<MergedUnit>(std::make_unique<BFU>(*bfuNameIter, false, slotIdx), std::make_unique<ALU>(false, slotIdx), false, slotIdx));
+      // allUnits.push_back(std::make_unique<MergedUnit>(createBFU(*bfuNameIter, false, slotIdx), std::make_unique<ALU>(false, slotIdx), false, slotIdx));
       bfuNameIter++;
       break;
     case PrimateConfig::FunctionalUnitType::EXTRACT:
