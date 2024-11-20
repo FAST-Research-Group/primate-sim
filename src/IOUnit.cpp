@@ -1,73 +1,115 @@
 #include "IOUnit.hpp"
+#include <fstream>
 #include <iostream>
 
-// Constructor
-IOUnit::IOUnit(bool regFileCon, unsigned slot) : FunctionalUnit(regFileCon, slot), inputStream("input.txt") {
-}
+namespace IOUnit {
+	// Input stream used by IOUnit functions
+	std::ifstream inputStream("input.txt");
 
-// Destructor
-IOUnit::~IOUnit() {}
+	// Return a function pointer to processInstruction
+	void (*getFunctionPTR())(Instruction  &I,
+									 MachineState &CMS,
+									 MachineState &NMS,
+									 int			  &index) {
+		return &processInstruction;
+	}
 
-void IOUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS) {
-    switch(I.get_opcode()) {
-    case IO_UNIT_INPUT:
-        handleInput(I, CMS, NMS);
-        break;
-    case IO_UNIT_OUTPUT:
-        handleOutputEmiti(I, CMS, NMS);
-        break;
-    default:
-        throw std::string("Unknown custom intruction.");
-        break;
-    }
-}
+	void processInstruction(Instruction	 &I,
+									MachineState &CMS,
+									MachineState &NMS,
+									int			 &index) {
+		switch (I.get_opcode()) {
+		case IO_UNIT_INPUT:
+			handleInput(I, CMS, NMS, index);
+			break;
+		case IO_UNIT_OUTPUT:
+			handleOutputEmiti(I, CMS, NMS, index);
+			break;
+		default:
+			throw std::string("Unknown custom instruction.");
+			break;
+		}
+	}
 
-void IOUnit::handleInput(Instruction &I, MachineState &CMS, MachineState &NMS) {
-    switch(I.get_funct3()) {
-    case 1:
-        handleInputRead(I, CMS, NMS);
-        break;
-    case 2:
-        // handleInputSeek not implemented
-        throw std::string("inputSeek is not an implemented instruction.");
-        break;
-    case 3:
-        throw std::string("inputExtracti is not an implemented instruction.");
-        break;
-    case 4:
-        throw std::string("inputDone is not an implemented instruction.");
-        break;
-    case 7:
-        throw std::string(
-            "inputExtractiDone is not an implemented instruction.");
-        break;
-    case 5:
-    case 6:
-    default:
-        throw std::string("Not a custom instruction.");
-        break;
-    }
-}
+	void handleInput(Instruction	&I,
+						  MachineState &CMS,
+						  MachineState &NMS,
+						  int				&index) {
+		switch (I.get_funct3()) {
+		case 1:
+			handleInputRead(I, CMS, NMS, index);
+			break;
+		case 2:
+			throw std::string("inputSeek is not an implemented instruction.");
+			break;
+		case 3:
+			throw std::string("inputExtracti is not an implemented instruction.");
+			break;
+		case 4:
+			throw std::string("inputDone is not an implemented instruction.");
+			break;
+		case 7:
+			throw std::string(
+				 "inputExtractiDone is not an implemented instruction.");
+			break;
+		default:
+			throw std::string("Not a custom instruction.");
+			break;
+		}
+	}
 
-void IOUnit::handleInputRead(Instruction &I, MachineState &CMS, MachineState &NMS) {
-    int rd = I.get_rd();
-    int imm = I.get_immediate();
-    int holdInput = 0;
-    char isLast, hasData;
-    char seperatorTrash;
-    std::string temp;
-    inputStream >> isLast >> seperatorTrash >> hasData >> seperatorTrash >> temp;
-    for(int i = 0; i < imm; ++i)
-        holdInput += (temp[i] - '0') << i;
-    NMS.setRegister(rd, holdInput);
-}
+	void handleInputRead(Instruction	 &I,
+								MachineState &CMS,
+								MachineState &NMS,
+								int			 &index) {
+		bool regFile = (index < 0);
 
-void IOUnit::handleOutputEmiti(Instruction &I, MachineState &CMS, MachineState& NMS) {
-    int rd = I.get_rd();
-    int imm = I.get_immediate();
-    int mask = 0;
-    for(int i = 1; i < imm; i++) {
-        mask += 1 * i;
-    }
-    std::cout << (CMS.getRegister(rd) & mask);
-}
+		int			rd			 = I.get_rd();
+		int			imm		 = I.get_immediate();
+		int			holdInput = 0;
+		char			isLast, hasData;
+		char			separatorTrash;
+		std::string temp;
+
+		if (!inputStream.is_open()) {
+			inputStream.open("input.txt");
+		}
+
+		inputStream >> isLast >> separatorTrash >> hasData >> separatorTrash
+			 >> temp;
+
+		for (int i = 0; i < imm; ++i)
+			holdInput += (temp[i] - '0') << i;
+
+		if (regFile) {
+			NMS.setRegister(rd, holdInput);
+		} else {
+			NMS.setInterconnectValue(index + 2, holdInput);
+		}
+	}
+
+	void handleOutputEmiti(Instruction	&I,
+								  MachineState &CMS,
+								  MachineState &NMS,
+								  int				&index) {
+		bool regFile = (index < 0);
+
+		int		rd	  = I.get_rd();
+		int		imm  = I.get_immediate();
+		Register mask = 0;
+		for (int i = 1; i < imm; i++) {
+			mask += Register(1) * i;
+		}
+
+		Register value;
+		if (regFile) {
+			value = CMS.getRegister(rd) & mask;
+		} else {
+			value = CMS.getInterconnectValue(index) & mask;
+		}
+
+		// Convert value to int for output, ensuring it's within int range
+		int outputValue = value.convert_to<int>();
+		std::cout << outputValue;
+	}
+}	  // namespace IOUnit
