@@ -11,6 +11,9 @@
 namespace IOUnit {
 	// Input stream used by IOUnit functions
 	extern std::ifstream inputStream;
+	typedef struct IOinputs{
+		
+	} IOinputs;
 
 	// Function to get the function pointer to processInstruction
 	void (*getFunctionPTR())(Instruction  &I,
@@ -35,6 +38,8 @@ namespace IOUnit {
 								  MachineState &CMS,
 								  MachineState &NMS,
 								  int				&index);
+	Register struct2Reg(const IOinputs &inp);
+   IOinputs Reg2struct(const Register &packedData);
 }	  // namespace IOUnit
 
 #endif	 // IOUNIT_HPP
