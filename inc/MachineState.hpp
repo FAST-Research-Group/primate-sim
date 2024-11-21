@@ -1,5 +1,4 @@
-#ifndef MACHINESTATE_H
-#define MACHINESTATE_H
+#pragma once
 
 #include <sstream>
 #include <ostream>
@@ -88,7 +87,7 @@ struct MachineState
     return result;
   }
 
-  void setMem(uint64_t address, Register value, int num_bytes)
+  void setMem(uint64_t address, Register value)
   {
 
     memory[address] = value;
@@ -116,5 +115,3 @@ struct MachineState
 
   friend std::ostream &operator<<(std::ostream &OS, const MachineState &thing);
 };
-
-#endif

@@ -310,14 +310,14 @@ void ALU::processSType(Instruction &I, MachineState &CMS, MachineState &NMS)
     switch (I.get_funct3())
     {
     case 0x0: // SB (Store Byte) - Invalid Instruction
-        NMS.setMem((int)address, op2 & 0xFF, 1);
+        // NMS.setMem((int)address, op2 & 0xFF, 1);
         break;
     case 0x1: // SH (Store Halfword) - Invalid Instruction
-        NMS.setMem((int)address, op2, 2);
+        // NMS.setMem((int)address, op2, 2);
         break;
     case 0x2: // SW (Store Word)
         std::cout << op2 << " " << I.get_immediate() << " " << address << std::endl;
-        NMS.setMem((int)address, op2, 4);
+        // NMS.setMem((int)address, op2, 4);
         break;
     // Handle other S-type instructions...
     default:

@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include "../inc/BFU.hpp"
-#include "../src/main.cpp"
+#include "../inc/BFUInstructions.hpp"
 
 BFU::BFU(std::string func, bool reg, unsigned slot) : name(func), FunctionalUnit(reg, slot) { pc = 0; }
 BFU::~BFU() {};
@@ -11,14 +11,14 @@ std::string BFU::getName()
 
 void BFU::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
-    int index;
+    int num;
     if (!(this->isConnectedToRegisterFile()))
     {
-        index = this->slotIdx - 2;
+        num = this->slotIdx - 2;
     }
     else
     {
-        index = -1;
+        num = -1;
     }
-    indexToFunction[nameToIndex[getName()]](I, CMS, NMS, index);
+    indexToFunction[nameToIndex[getName()]](I, CMS, NMS, num);
 }

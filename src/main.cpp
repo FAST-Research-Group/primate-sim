@@ -13,16 +13,16 @@
 #include "FunctionalUnit.hpp"
 #include "extract.hpp"
 #include "MergedUnit.hpp"
-#include "Generated/BFUFactory.hpp"
+// #include "Generated/BFUFactory.hpp"
 #include "Insert.hpp"
+#include "../inc/io.hpp"
+#include "../inc/lsu.hpp"
+#include "../inc/MatMul.hpp"
 
-#include "../Experimental Generator/BFUInstructions.cpp"
+#include "../inc/BFUInstructions.hpp"
 
 // these are the maps where the generated BFU instructions will go to
 // for verification as well as to call by processInstruction in BFU class
-std::map<int, void (*)(Instruction &I, MachineState &CMS, MachineState &NMS, int &index)> indexToFunction;
-std::map<void (*)(Instruction &I, MachineState &CMS, MachineState &NMS, int &index), std::string> functionToName;
-std::map<std::string, int> nameToIndex;
 
 // using namespace std removed; it was still here
 

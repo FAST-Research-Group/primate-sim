@@ -5,10 +5,10 @@ namespace MatMul
 {
 
     // Return a function pointer to processInstruction
-    void (*getFunctionPTR())(Instruction &I, MachineState &CMS, MachineState &NMS, int &index)
-    {
-        return &processInstruction;
-    }
+    // void (*getFunctionPTR())(Instruction &I, MachineState &CMS, MachineState &NMS, int &index)
+    // {
+    //     return &processInstruction;
+    // }
 
     Register struct2Reg(const matrices &mat)
     {
@@ -106,31 +106,30 @@ namespace MatMul
         }
     }
 
-    void processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS, int &index)
-    {
-        bool regFile = (index < 0) ? 1 : 0;
-        matrices result; // this should be where rs1 is extracted to
-        if (regFile)
-        {
-            result = Reg2struct(CMS.getRegister(I.get_rs1()));
-        }
-        else
-        {
-            result = Reg2struct(CMS.getInterconnectValue(index));
-        }
+    // void processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS, int &index)
+    // {
+    //     bool regFile = (index < 0) ? 1 : 0;
+    //     matrices result; // this should be where rs1 is extracted to
+    //     if (regFile)
+    //     {
+    //         result = Reg2struct(CMS.getRegister(I.get_rs1()));
+    //     }
+    //     else
+    //     {
+    //         result = Reg2struct(CMS.getInterconnectValue(index));
+    //     }
 
-        matrixMultiply(result.weightsPTR, result.inputPTR, result.activationPTR, result.m1r, result.m1c, result.m2r, result.m2c);
+    //     matrixMultiply(result.weightsPTR, result.inputPTR, result.activationPTR, result.m1r, result.m1c, result.m2r, result.m2c);
 
-        Register output = struct2Reg(result);
+    //     Register output = struct2Reg(result);
 
-        if (regFile)
-        {
-            NMS.setRegister(I.get_rd(), output);
-        }
-        else
-        {
-            NMS.setInterconnectValue(index + 2, output);
-        }
-    }
-
+    //     if (regFile)
+    //     {
+    //         NMS.setRegister(I.get_rd(), output);
+    //     }
+    //     else
+    //     {
+    //         NMS.setInterconnectValue(index + 2, output);
+    //     }
+    // }
 }
