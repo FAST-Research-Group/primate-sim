@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cctype>
 #include <locale>
+#include <filesystem>
 
 std::vector<std::string> BFUNames;
 
@@ -102,7 +103,7 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        outfile << "#include \"../inc/" << bfuName << ".hpp\"" << std::endl;
+        outfile << "#include \"../BFUs/inc/" << bfuName << ".hpp\"" << std::endl;
         outfile << "namespace " << bfuName << " {" << std::endl;
         outfile << "    void processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS, int &index) {" << std::endl;
         outfile << "        bool regFile = (index < 0) ? 1 : 0;" << std::endl;
@@ -127,6 +128,10 @@ int main(int argc, char *argv[])
         outfile << "    }" << std::endl;
 
         outfile << "}" << std::endl; // Close namespace
+
+        outfile.close();
+
+        std::filesystem::rename(filename, std::filesystem::path("src") / filename);
     }
 
     return 0;

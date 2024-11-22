@@ -1,4 +1,4 @@
-#include "MatMul.hpp"
+#include "../inc/MatMul.hpp"
 #include <iostream>
 
 namespace MatMul

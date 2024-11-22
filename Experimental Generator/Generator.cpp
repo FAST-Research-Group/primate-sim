@@ -88,12 +88,13 @@ int main(int argc, char *argv[])
 #include <map>
 #include <string>
 #include <iostream>
+#include "../inc/BFUInstructions.hpp"
 )cpp";
 
     // Dynamically include user-defined namespace headers
     for (const auto &namespaceName : BFUNames)
     {
-        outfile << "#include \"" << namespaceName << ".hpp\"" << std::endl;
+        outfile << "#include \"../BFUs/inc/" << namespaceName << ".hpp\"" << std::endl;
     }
 
     // Write the function definition

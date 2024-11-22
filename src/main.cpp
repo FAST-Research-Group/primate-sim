@@ -15,9 +15,13 @@
 #include "MergedUnit.hpp"
 // #include "Generated/BFUFactory.hpp"
 #include "Insert.hpp"
-#include "../inc/io.hpp"
-#include "../inc/lsu.hpp"
-#include "../inc/MatMul.hpp"
+
+/* Place the includes for the added BFUs here */
+#include "../BFUs/inc/io.hpp"
+#include "../BFUs/inc/lsu.hpp"
+#include "../BFUs/inc/MatMul.hpp"
+
+/* The rest of the includes are necessary */
 
 #include "../inc/BFUInstructions.hpp"
 
