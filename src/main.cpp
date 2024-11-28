@@ -98,6 +98,36 @@ int stringToBinary(std::string test)
   return result;
 }
 
+void loadMemoryFromFile(const std::string &filename, MachineState &state)
+{
+  std::ifstream file(filename); // No need to dereference
+  if (!file.is_open())
+  {
+    throw std::runtime_error("Failed to open file: " + filename);
+  }
+
+  std::string line;
+  uint64_t lineNumber = 0;
+
+  while (std::getline(file, line))
+  {
+    std::istringstream iss(line);
+    std::string value;
+    if (!(iss >> value))
+    {
+      std::cerr << "Skipping empty or invalid line: " << lineNumber << std::endl;
+      continue;
+    }
+
+    Register binaryValue = Register(stringToBinary(value));
+    state.setMem(lineNumber, binaryValue);
+
+    lineNumber++;
+  }
+
+  file.close();
+}
+
 std::vector<std::vector<Instruction>> read(const std::string &filename, PrimateConfig primateCfg)
 {
 
@@ -180,9 +210,9 @@ void get_data(Instruction dat)
 int main(int argc, char *argv[])
 {
   // error if wrong amount of arguments arguments
-  if (argc != 4)
+  if (argc != 5)
   {
-    std::cerr << "Usage: " << argv[0] << " <path to program.bin> <path to primate.cfg> <path to BFUListsPath>" << std::endl;
+    std::cerr << "Usage: " << argv[0] << " <path to program.bin> <path to primate.cfg> <path to BFUListsPath> <path to MEMFile.txt>" << std::endl;
     return 1;
   }
 
@@ -223,6 +253,7 @@ int main(int argc, char *argv[])
   std::string filePath_instruction = argv[1];
   std::string filePath_config = argv[2];
   std::string BFUListsPath = argv[3];
+  std::string MEMFilePath = argv[4];
   PrimateConfig primateCfg(filePath_config, BFUListsPath);
 
   // primateCfg.get_data();
@@ -272,6 +303,8 @@ int main(int argc, char *argv[])
   // std::cout << "NUM UNITS: " << allUnits.size() << std::endl; // used for debugging
   // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
   MachineState CurrentState(0, primateCfg), NextState(0, primateCfg);
+  loadMemoryFromFile(MEMFilePath, CurrentState);
+  loadMemoryFromFile(MEMFilePath, NextState);
 
   // Initialize Functional Units over here
 
