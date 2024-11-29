@@ -9,6 +9,7 @@ InsertUnit::~InsertUnit() {}
 
 void InsertUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
+    // std::cout << "Inserting " << this->slotIdx << std::endl;
     // std::cout << "Insert: " << std::hex << I.get_rawinstruction() << std::endl; // used for debugging
     if (I.get_opcode() == 19)
     {
@@ -51,7 +52,7 @@ void InsertUnit::processInstruction(Instruction &I, MachineState &CMS, MachineSt
     int shift = primateCFG.Src_Pos.at(INDEX_POS);
 
     Register Interconnect_Value = CMS.getInterconnectValue(slotIdx - 1);
-    // std::cout << "Value from GFU is: " << CMS.getInterconnectValue(slotIdx - 1) << std::endl; // used for debugging
+    // std::cout << "Value from LSU is: " << CMS.getInterconnectValue(slotIdx - 1).str(10) << std::endl; // used for debugging
 
     Register result_to_write_to_reg_file = Interconnect_Value & mask;
 

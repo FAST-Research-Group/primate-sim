@@ -7,7 +7,7 @@ ExtractUnit::~ExtractUnit() {}
 
 void ExtractUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
-    // std::cout << "Extract: " << std::hex << I.get_rawinstruction() << std::endl; // Used for debugging
+    // std::cout << "Extract: " << std::hex << I.get_rawinstruction() << " " << this->slotIdx << std::endl; // Used for debugging
     if (I.get_rawinstruction() == 19)
     {
         return;
