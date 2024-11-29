@@ -111,6 +111,7 @@ public:
     }
     BFUNames.push_back("lsu");
     BFUNames.push_back("io");
+    // std::cout << BFUNames.size() << std::endl;
   }
 
   // ctor to read file
