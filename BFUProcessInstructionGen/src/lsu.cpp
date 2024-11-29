@@ -5,7 +5,7 @@ namespace lsu
 {
     void processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS, int &index)
     {
-
+        std::cout << "We are here" << std::endl;
         bool regFile = (index < 0);
         MemOp memOp;
         Register rs1, rs2;
@@ -29,7 +29,8 @@ namespace lsu
         {
             if (I.get_type() == Instruction::type::I)
             {
-                rs1 = CMS.getInterconnectValue(I.get_rs1());
+                std::cout << "We are here" << std::endl;
+                rs1 = CMS.getInterconnectValue(index);
                 load_or_store = true;
             }
             else
@@ -39,6 +40,7 @@ namespace lsu
                 load_or_store = false;
             }
         }
+        std::cout << "we made it here" << std::endl;
         Register output = 0;
         if (load_or_store)
         {
@@ -49,7 +51,9 @@ namespace lsu
             }
             else
             {
-                NMS.setInterconnectValue(index + 2, output);
+                std::cout << index + 2 << std::endl;
+                CMS.setInterconnectValue(index + 2, output);
+                std::cout << CMS.getMem(0) << " and " << output << std::endl;
             }
         }
         else
