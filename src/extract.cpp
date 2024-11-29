@@ -13,7 +13,7 @@ void ExtractUnit::processInstruction(Instruction &I, MachineState &CMS, MachineS
         return;
     }
 
-    int destination = I.get_rd();
+    int destination = I.get_rd(); // this line gets ignored since extract writes to the interconnect. This might be a bug, but idk
     Register src = CMS.getRegister(I.get_rs1());
     int source = I.get_rs1();
     int immediate = I.get_immediate();
