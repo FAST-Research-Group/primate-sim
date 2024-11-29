@@ -265,7 +265,8 @@ int main(int argc, char *argv[])
 
   std::vector<std::unique_ptr<FunctionalUnit>> allUnits;
   int slotIdx = 0;
-  auto bfuNameIter = primateCfg.getBFUNames().begin();
+  auto BFUNames = primateCfg.getBFUNames();
+  auto bfuNameIter = BFUNames.begin();
 
   for (auto &slotType : primateCfg.instrLayout)
   {
@@ -285,7 +286,9 @@ int main(int argc, char *argv[])
       allUnits.push_back(std::make_unique<ALU>(false, slotIdx));
       break;
     case PrimateConfig::FunctionalUnitType::MERGED:
+      // std::cout << "Merged Unit Exists" << std::endl;
       allUnits.push_back(std::make_unique<MergedUnit>(std::make_unique<BFU>(*bfuNameIter, false, slotIdx), std::make_unique<ALU>(false, slotIdx), false, slotIdx));
+
       // allUnits.push_back(std::make_unique<MergedUnit>(createBFU(*bfuNameIter, false, slotIdx), std::make_unique<ALU>(false, slotIdx), false, slotIdx));
       bfuNameIter++;
       break;
@@ -300,6 +303,7 @@ int main(int argc, char *argv[])
     }
     slotIdx++;
   }
+  // std::cout << "Number of Units " << slotIdx << std::endl;
   // std::cout << "NUM UNITS: " << allUnits.size() << std::endl; // used for debugging
   // initial machine state (!!!!!!!!!!!! This will be a bug that needs to be changed)
   MachineState CurrentState(0, primateCfg), NextState(0, primateCfg);
