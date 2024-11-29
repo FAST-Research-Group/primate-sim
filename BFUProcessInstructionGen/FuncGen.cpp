@@ -91,10 +91,9 @@ int main(int argc, char *argv[])
     parseBFULists(argv[1]);
 
     // Generate output files for each BFU
-    for (const auto &bfuName : BFUNames)
+    for (int i = 0; i < BFUNames.size() - 2; i++)
     {
-
-        std::string filename = bfuName + "_gen.cpp";
+        std::string filename = BFUNames.at(i) + "_gen.cpp";
         std::ofstream outfile(filename);
 
         if (!outfile.is_open())
@@ -103,8 +102,8 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        outfile << "#include \"../BFUs/inc/" << bfuName << ".hpp\"" << std::endl;
-        outfile << "namespace " << bfuName << " {" << std::endl;
+        outfile << "#include \"../BFUs/inc/" << BFUNames.at(i) << ".hpp\"" << std::endl;
+        outfile << "namespace " << BFUNames.at(i) << " {" << std::endl;
         outfile << "    void processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS, int &index) {" << std::endl;
         outfile << "        bool regFile = (index < 0) ? 1 : 0;" << std::endl;
         outfile << "        /*This is where the name of your struct goes. Set the name to output (ex: matrix result)*/" << std::endl;
