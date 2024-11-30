@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        outfile << "#include \"../BFUs/inc/" << BFUNames.at(i) << ".hpp\"" << std::endl;
+        outfile << "#include \"../../BFUs/inc/" << BFUNames.at(i) << ".hpp\"" << std::endl;
         outfile << "namespace " << BFUNames.at(i) << " {" << std::endl;
         outfile << "    void processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS, int &index) {" << std::endl;
         outfile << "        bool regFile = (index < 0) ? 1 : 0;" << std::endl;
