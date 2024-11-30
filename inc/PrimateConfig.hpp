@@ -111,6 +111,7 @@ public:
     }
     BFUNames.push_back("lsu");
     BFUNames.push_back("io");
+    // num_BFU = BFUNames.size(); // bug, you should have this many BFUS ...
     // std::cout << BFUNames.size() << std::endl;
   }
 
