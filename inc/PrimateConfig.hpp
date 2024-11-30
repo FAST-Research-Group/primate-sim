@@ -109,8 +109,8 @@ public:
       }
       }
     }
-    BFUNames.push_back("io"); // switch these. Just placed it here for testing
     BFUNames.push_back("lsu");
+    BFUNames.push_back("io"); // switch these. Just placed it here for testing
 
     // num_BFU = BFUNames.size(); // bug, you should have this many BFUS ...
     // std::cout << BFUNames.size() << std::endl;
@@ -186,19 +186,17 @@ public:
           word1 = word.substr(0, 9);
           if (word1.compare("NUM_ALUS=") == 0)
           {
-            // std::cout << word.substr(9) << std::endl;
+
             num_ALU = stoi(word.substr(9), 0, 10);
           }
           if (word1.compare("NUM_BFUS=") == 0)
           {
-            // std::cout << word.substr(9) << std::endl;
+
             num_BFU = stoi(word.substr(9), 0, 10);
           }
           if (word1.compare("SRC_MODE=") == 0)
           {
 
-            // std::cout << "Initial word: " << word << std::endl;
-            // std::cout << "Attempting to convert: " << word.substr(9) << std::endl;
             Src_Mode.push_back(stoi(word.substr(9), 0, 10));
             while (iss >> word)
             {
