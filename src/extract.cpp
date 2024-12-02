@@ -44,8 +44,9 @@ void ExtractUnit::processInstruction(Instruction &I, MachineState &CMS, MachineS
     int shift = primateCFG.Src_Pos.at(INDEX_POS);
 
     // this is wrong. Should be the value at I.get_rs1() not the actual register number
-
+    // std::cout << "writing to slot: " << this->slotIdx << std::endl;
     Register result = (src >> shift) & mask;
+    // std::cout << result << std::endl;
     CMS.setInterconnectValue(this->slotIdx, result);
     // std::cout << "Writing: " << result << " to: " << this->slotIdx << std::endl;
 

@@ -93,7 +93,8 @@ int main(int argc, char *argv[])
     // Generate output files for each BFU
     for (int i = 0; i < BFUNames.size() - 2; i++)
     {
-        std::string filename = BFUNames.at(i) + "_gen.cpp";
+        std::string bfuName = BFUNames.at(i);
+        std::string filename = bfuName + "_gen.cpp";
         std::ofstream outfile(filename);
 
         if (!outfile.is_open())
@@ -102,26 +103,30 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        outfile << "#include \"../../BFUs/inc/" << BFUNames.at(i) << ".hpp\"" << std::endl;
-        outfile << "namespace " << BFUNames.at(i) << " {" << std::endl;
+        // Write the file content
+        outfile << "#include \"../../BFUs/inc/" << bfuName << ".hpp\"" << std::endl;
+        outfile << "namespace " << bfuName << " {" << std::endl;
+
+        // processInstruction function
         outfile << "    void processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS, int &index) {" << std::endl;
         outfile << "        bool regFile = (index < 0) ? 1 : 0;" << std::endl;
-        outfile << "        /*This is where the name of your struct goes. Set the name to output (ex: matrix result)*/" << std::endl;
+        outfile << "        struct " << bfuName << " input;" << std::endl;
+        outfile << "        struct " << bfuName << " output;" << std::endl;
         outfile << "        if (regFile) {" << std::endl;
-        outfile << "            result = Reg2struct(CMS.getRegister(I.get_rs1()));" << std::endl;
+        outfile << "            input = Reg2struct(CMS.getRegister(I.get_rs1()));" << std::endl;
         outfile << "        } else {" << std::endl;
-        outfile << "            result = Reg2struct(CMS.getInterconnectValue(index));" << std::endl;
+        outfile << "            input = Reg2struct(CMS.getInterconnectValue(index));" << std::endl;
         outfile << "        }" << std::endl;
-        outfile << "        /* PLACE YOUR FUNCTION HERE WITH THE PROPER PARAMETERS */" << std::endl;
-        outfile << "        Register output = struct2Reg(result);" << std::endl;
+        outfile << "        struct " << bfuName << " output = process" << bfuName << "(input);" << std::endl;
+        outfile << "        Register result = struct2Reg(output);" << std::endl;
         outfile << "        if (regFile) {" << std::endl;
-        outfile << "            NMS.setRegister(I.get_rd(), output);" << std::endl;
+        outfile << "            NMS.setRegister(I.get_rd(), result);" << std::endl;
         outfile << "        } else {" << std::endl;
-        outfile << "            NMS.setInterconnectValue(index + 2, output);" << std::endl;
+        outfile << "            CMS.setInterconnectValue(index + 2, result);" << std::endl;
         outfile << "        }" << std::endl;
         outfile << "    }" << std::endl;
 
-        // Add getFunctionPTR function
+        // getFunctionPTR function
         outfile << "    void (*getFunctionPTR())(Instruction &I, MachineState &CMS, MachineState &NMS, int &index) {" << std::endl;
         outfile << "        return &processInstruction;" << std::endl;
         outfile << "    }" << std::endl;
@@ -130,7 +135,15 @@ int main(int argc, char *argv[])
 
         outfile.close();
 
-        std::filesystem::rename(filename, std::filesystem::path("src") / filename);
+        // Move the file to the "src" folder
+        try
+        {
+            std::filesystem::rename(filename, std::filesystem::path("src") / filename);
+        }
+        catch (const std::filesystem::filesystem_error &e)
+        {
+            std::cerr << "Error moving file: " << filename << " to src directory. " << e.what() << std::endl;
+        }
     }
 
     return 0;

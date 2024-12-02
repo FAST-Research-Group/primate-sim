@@ -19,7 +19,7 @@
 /* Place the includes for the added BFUs here */
 #include "../BFUs/inc/io.hpp"
 #include "../BFUs/inc/lsu.hpp"
-#include "../BFUs/inc/MatMul.hpp"
+#include "../BFUs/inc/threebitadd.hpp"
 
 /* The rest of the includes are necessary */
 
