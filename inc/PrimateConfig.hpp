@@ -110,9 +110,10 @@ public:
       }
     }
     BFUNames.push_back("lsu");
-    BFUNames.push_back("io"); // switch these. Just placed it here for testing
+    BFUNames.push_back("io");
 
     num_BFU = BFUNames.size(); // bug, you should have this many BFUS ...
+
     // std::cout << BFUNames.size() << std::endl;
   }
 
@@ -122,8 +123,6 @@ public:
     // std::cout << "Opening config file at: " << fpath << "\n";
     std::ifstream inputFile(fpath);
     std::string line;
-
-    parseBFULists(bfuListsPath);
 
     if (!inputFile.is_open())
     {
@@ -309,9 +308,11 @@ public:
         }
       }
     }
-
+    parseBFULists(bfuListsPath);
     int aluTemp = num_ALU;
+
     int bfuTemp = num_BFU;
+
     num_merged = 0;
     while (aluTemp > 0 && bfuTemp > 0)
     {
@@ -323,6 +324,7 @@ public:
       bfuTemp--;
       num_merged++;
     }
+
     while (aluTemp > 0)
     {
       assert(bfuTemp == 0 && "placing ALUs while remaining BFUs. Should be merged....");

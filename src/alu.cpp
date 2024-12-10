@@ -394,7 +394,7 @@ void ALU::processInstruction(Instruction &I, MachineState &CMS, MachineState &NM
         // Add processing for JALR
         break;
     default:
-        std::cerr << "Unknown opcode for GFU: " << I.get_opcode() << std::endl;
+        std::cerr << "Unknown opcode for GFU: " << I.get_opcode() << " " << I.get_rawinstruction() << std::endl;
         break;
     }
 }

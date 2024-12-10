@@ -1,0 +1,6 @@
+{
+"thirteenbitadd":{
+                "HWInterface":["io"],
+                "Instructions": ["thirteenbitadd"]
+        }
+}

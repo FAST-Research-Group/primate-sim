@@ -9,6 +9,8 @@ InsertUnit::~InsertUnit() {}
 
 void InsertUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
+    // assert((I.get_opcode() == 0x2B) && "Invalid Instruction in insert slot");
+    std::cout << "attempting insert" << std::hex << I.get_immediate() << std::endl;
     // std::cout << "Inserting " << this->slotIdx << std::endl;
     // std::cout << "Insert: " << std::hex << I.get_rawinstruction() << std::endl; // used for debugging
     if (I.get_opcode() == 19)

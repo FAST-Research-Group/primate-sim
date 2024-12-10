@@ -11,6 +11,10 @@ std::string BFU::getName()
 
 void BFU::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
+    if (I.get_opcode() == 0x13)
+    {
+        return;
+    }
     int num;
     if (!(this->isConnectedToRegisterFile()))
     {

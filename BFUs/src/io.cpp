@@ -5,6 +5,7 @@
 namespace io
 {
     // Input stream used by IOUnit functions
+
     std::ifstream inputStream("input.txt");
 
     // Return a function pointer to processInstruction
@@ -14,23 +15,33 @@ namespace io
                      MachineState &NMS,
                      int &index)
     {
+        std::cout << "We got here in the input stuff" << std::endl;
         switch (I.get_funct3())
         {
         case 1:
+            std::cout << "Test 1" << std::endl;
             handleInputRead(I, CMS, NMS, index);
             break;
         case 2:
-            throw std::string("inputSeek is not an implemented instruction.");
+            std::cout << "Test 2" << std::endl;
+            handleInputRead(I, CMS, NMS, index);
+            // throw std::string("inputSeek is not an implemented instruction.");
             break;
         case 3:
-            throw std::string("inputExtracti is not an implemented instruction.");
+            std::cout << "Test 3" << std::endl;
+            handleInputRead(I, CMS, NMS, index);
+            // handleInputExtractI(I, CMS, NMS, index);
+            // throw std::string("inputExtracti is not an implemented instruction.");
             break;
         case 4:
-            throw std::string("inputDone is not an implemented instruction.");
+            std::cout << "Test 4" << std::endl;
+            handleInputRead(I, CMS, NMS, index);
+            // throw std::string("inputDone is not an implemented instruction.");
             break;
         case 7:
-            throw std::string(
-                "inputExtractiDone is not an implemented instruction.");
+            std::cout << "Test 5" << std::endl;
+            handleInputRead(I, CMS, NMS, index);
+            // throw std::string("inputExtractiDone is not an implemented instruction.");
             break;
         default:
             throw std::string("Not a custom instruction.");
@@ -43,6 +54,7 @@ namespace io
                          MachineState &NMS,
                          int &index)
     {
+        std::cout << "handling read before error" << std::endl;
         bool regFile = (index < 0);
 
         int rd = I.get_rd();
@@ -68,7 +80,7 @@ namespace io
         }
         else
         {
-            NMS.setInterconnectValue(index + 2, holdInput);
+            CMS.setInterconnectValue(index + 2, holdInput);
         }
     }
 

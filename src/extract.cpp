@@ -7,6 +7,8 @@ ExtractUnit::~ExtractUnit() {}
 
 void ExtractUnit::processInstruction(Instruction &I, MachineState &CMS, MachineState &NMS)
 {
+    // assert((I.get_opcode() == 0x2B) && "Invalid Instruction in extract slot");
+
     // std::cout << "Extract: " << std::hex << I.get_rawinstruction() << " " << this->slotIdx << std::endl; // Used for debugging
     if (I.get_rawinstruction() == 19)
     {

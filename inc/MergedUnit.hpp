@@ -26,6 +26,7 @@ public:
         }
         else
         {
+            std::cout << "Merged Unit. We got here" << std::endl;
             bfuInst->processInstruction(I, CMS, NMS);
         }
     }
